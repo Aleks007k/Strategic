@@ -36,7 +36,7 @@ class AnthropicProvider(BaseProvider):
 
         agent_name = llm_input.get("agent")
         reasoning_context = llm_input.get("reasoning_context") or {}
-        model = llm_config.get("providers", {}).get("anthropic", {}).get("model", DEFAULT_MODEL)
+        model = self._resolve_model()
         prompt = self._build_prompt(agent_name, reasoning_context)
 
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
@@ -67,6 +67,10 @@ class AnthropicProvider(BaseProvider):
             "opportunities": data.get("opportunities", []),
             "recommendations": data.get("recommendations", []),
         }
+
+    @staticmethod
+    def _resolve_model() -> str:
+        return llm_config.get("providers", {}).get("anthropic", {}).get("model") or DEFAULT_MODEL
 
     @staticmethod
     def _build_prompt(agent_name, reasoning_context) -> str:
