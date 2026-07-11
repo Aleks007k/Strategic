@@ -5,6 +5,7 @@ Technology Analyst agent
 
 from agents.base_agent import BaseAgent
 from agents.agent_reasoning import AgentReasoning
+from engines.analysis_builder import AnalysisBuilder
 from knowledge.knowledge_loader import KnowledgeLoader
 from prompts.prompt_loader import PromptLoader
 
@@ -16,6 +17,7 @@ class TechnologyAnalyst(BaseAgent):
         self.knowledge_loader = KnowledgeLoader()
         self.prompt_loader = PromptLoader()
         self.agent_reasoning = AgentReasoning()
+        self.analysis_builder = AnalysisBuilder()
 
     def run(self, question: str, context=None, analysis_context=None) -> dict:
         knowledge_context = self.knowledge_loader.load_domain("technology")
@@ -24,6 +26,7 @@ class TechnologyAnalyst(BaseAgent):
         reasoning_context = self.agent_reasoning.build_analysis_context(
             analysis_context, prompt_context, knowledge_context, user_preferences
         )
+        analysis = self.analysis_builder.build(self.name, reasoning_context)
 
         return {
             "agent": self.name,
@@ -37,10 +40,5 @@ class TechnologyAnalyst(BaseAgent):
                 "knowledge_context": analysis_context.knowledge_context if analysis_context else None,
             },
             "reasoning_context": reasoning_context,
-            "analysis": {
-                "summary": "Analysis not yet implemented.",
-                "trends": [],
-                "opportunities": [],
-                "risks": [],
-            },
+            "analysis": analysis,
         }
