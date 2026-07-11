@@ -9,6 +9,7 @@ from datetime import datetime
 from core.orchestrator import Orchestrator
 from core.context import UserContext
 from engines.analysis_engine import AnalysisEngine
+from engines.response_engine import ResponseEngine
 from memory.memory_manager import MemoryManager
 from memory.memory_classifier import MemoryClassifier
 from language.language_manager import LanguageManager
@@ -18,6 +19,7 @@ class StrategicSession:
     def __init__(self, orchestrator: Orchestrator):
         self.orchestrator = orchestrator
         self.analysis_engine = AnalysisEngine()
+        self.response_engine = ResponseEngine()
         self.memory_manager = MemoryManager()
         self.memory_classifier = MemoryClassifier()
         self.language_manager = LanguageManager()
@@ -34,6 +36,7 @@ class StrategicSession:
             "detail_level": context.preferences.get("detail_level"),
             "focus_areas": context.preferences.get("focus_areas"),
         }
+        final_analysis["response_text"] = self.response_engine.generate(final_analysis, context=context)
 
         content = json.dumps(final_analysis, indent=2)
         category = self.memory_classifier.classify(content)
