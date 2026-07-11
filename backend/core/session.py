@@ -8,6 +8,7 @@ from datetime import datetime
 
 from core.orchestrator import Orchestrator
 from core.context import UserContext
+from core.analysis_context import AnalysisContext
 from engines.analysis_engine import AnalysisEngine
 from engines.response_engine import ResponseEngine
 from memory.memory_manager import MemoryManager
@@ -28,7 +29,11 @@ class StrategicSession:
         if context is None:
             context = UserContext(language=self.language_manager.get_language(language))
 
-        results = list(self.orchestrator.run_all(question, context=context).values())
+        analysis_context = AnalysisContext(question=question, user_context=context)
+
+        results = list(
+            self.orchestrator.run_all(analysis_context.question, context=analysis_context.user_context).values()
+        )
         final_analysis = self.analysis_engine.synthesize(results)
         final_analysis["language"] = context.language
         final_analysis["user_preferences"] = {
