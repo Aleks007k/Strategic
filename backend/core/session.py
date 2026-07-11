@@ -26,7 +26,7 @@ class StrategicSession:
         if context is None:
             context = UserContext(language=self.language_manager.get_language(language))
 
-        results = [self.orchestrator.run(agent_name, question) for agent_name in self.orchestrator.agents]
+        results = list(self.orchestrator.run_all(question, context=context).values())
         final_analysis = self.analysis_engine.synthesize(results)
         final_analysis["language"] = context.language
         final_analysis["user_preferences"] = {
