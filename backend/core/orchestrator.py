@@ -11,11 +11,11 @@ class Orchestrator:
     def register(self, agent):
         self.agents[agent.name] = agent
 
-    def run(self, agent_name: str, *args, **kwargs):
+    def run(self, agent_name: str, question: str, context=None):
         agent = self.agents.get(agent_name)
         if agent is None:
             raise ValueError(f"Agent '{agent_name}' is not registered")
-        return agent.run(*args, **kwargs)
+        return agent.run(question, context=context)
 
-    def run_all(self, *args, **kwargs):
-        return {name: agent.run(*args, **kwargs) for name, agent in self.agents.items()}
+    def run_all(self, question: str, context=None):
+        return {name: agent.run(question, context=context) for name, agent in self.agents.items()}
