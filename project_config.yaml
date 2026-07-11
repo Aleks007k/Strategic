@@ -13,13 +13,15 @@ ai:
   mobile_framework: flutter
 
 llm:
-  provider: mock
+  provider: ollama
   model: strategic-v1
   temperature: 0.2
 
   providers:
     anthropic:
       model: claude-sonnet-5
+    ollama:
+      model: qwen2.5:7b
 
 language:
   default: ru
