@@ -12,6 +12,12 @@ ai:
   primary_language: python
   mobile_framework: flutter
 
+language:
+  default: ru
+  supported:
+    - ru
+    - en
+
 models:
   strategy:
     provider: flexible
