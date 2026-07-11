@@ -3,16 +3,24 @@ Strategic AI Core Backend
 Analysis synthesis engine
 """
 
+from engines.output_validator import OutputValidator
+
 
 class AnalysisEngine:
+    def __init__(self):
+        self.output_validator = OutputValidator()
+
     def synthesize(self, agent_results: list) -> dict:
-        perspectives = [
-            {
+        perspectives = []
+        for result in agent_results:
+            analysis = result.get("analysis", {})
+            validation = self.output_validator.validate(analysis)
+            perspectives.append({
                 "agent": result.get("agent"),
-                "summary": result.get("analysis", {}).get("summary"),
-            }
-            for result in agent_results
-        ]
+                "summary": analysis.get("summary"),
+                "valid": validation["valid"],
+                "missing_fields": validation["missing_fields"],
+            })
 
         risks = self._collect(agent_results, "risks")
         opportunities = self._collect(agent_results, "opportunities")
