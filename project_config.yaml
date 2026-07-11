@@ -17,6 +17,10 @@ llm:
   model: strategic-v1
   temperature: 0.2
 
+  providers:
+    anthropic:
+      model: claude-3-5-sonnet
+
 language:
   default: ru
   supported:
