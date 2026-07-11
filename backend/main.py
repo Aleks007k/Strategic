@@ -11,6 +11,8 @@ from core.session import StrategicSession
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
 from agents.technology_analyst import TechnologyAnalyst
+from language.localization_manager import LocalizationManager
+from language.language_manager import LanguageManager
 
 
 def get_status():
@@ -30,9 +32,12 @@ def main():
     print(get_status())
     print(f"Registered agents: {list(orchestrator.agents.keys())}")
 
-    print("Welcome to Strategic - your personal strategic intelligence assistant.")
-    language = input("Choose language (ru/en) [default: ru]: ")
-    question = input("Enter your question: ")
+    localization = LocalizationManager()
+    language_manager = LanguageManager()
+
+    print(localization.get_text("welcome_message"))
+    language = language_manager.get_language(input(localization.get_text("language_prompt")))
+    question = input(localization.get_text("question_prompt", language))
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, language=language)
     print(final_analysis)
