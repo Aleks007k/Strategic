@@ -1,13 +1,13 @@
 """
 Strategic AI Core Backend
-Strategic Analyst agent
+Economic Analyst agent
 """
 
 from agents.base_agent import BaseAgent
 
 
-class StrategicAnalyst(BaseAgent):
-    name = "Strategic Analyst"
+class EconomicAnalyst(BaseAgent):
+    name = "Economic Analyst"
 
     def run(self, question: str) -> dict:
         return {
@@ -15,8 +15,8 @@ class StrategicAnalyst(BaseAgent):
             "question": question,
             "analysis": {
                 "summary": "Analysis not yet implemented.",
-                "scenarios": [],
-                "priorities": [],
-                "recommendations": [],
+                "economic_factors": [],
+                "risks": [],
+                "opportunities": [],
             },
         }

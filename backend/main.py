@@ -8,6 +8,9 @@ from datetime import datetime
 from config import config
 from core.orchestrator import Orchestrator
 from agents.strategic_analyst import StrategicAnalyst
+from agents.economic_analyst import EconomicAnalyst
+from agents.technology_analyst import TechnologyAnalyst
+from engines.analysis_engine import AnalysisEngine
 
 
 def get_status():
@@ -21,12 +24,20 @@ def get_status():
 def main():
     orchestrator = Orchestrator()
     orchestrator.register(StrategicAnalyst())
+    orchestrator.register(EconomicAnalyst())
+    orchestrator.register(TechnologyAnalyst())
 
     print(get_status())
     print(f"Registered agents: {list(orchestrator.agents.keys())}")
 
-    result = orchestrator.run("Strategic Analyst", "What should I focus on this quarter?")
-    print(result)
+    question = "What should I focus on this quarter?"
+    results = [orchestrator.run(agent_name, question) for agent_name in orchestrator.agents]
+    for result in results:
+        print(result)
+
+    engine = AnalysisEngine()
+    combined = engine.synthesize(results)
+    print(combined)
 
 
 if __name__ == "__main__":
