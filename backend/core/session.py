@@ -9,6 +9,7 @@ from datetime import datetime
 from core.orchestrator import Orchestrator
 from core.context import UserContext
 from core.analysis_context import AnalysisContext
+from core.task_planner import TaskPlanner
 from engines.analysis_engine import AnalysisEngine
 from engines.response_engine import ResponseEngine
 from engines.llm_engine import LLMEngine
@@ -30,10 +31,13 @@ class StrategicSession:
         self.memory_retriever = MemoryRetriever()
         self.knowledge_loader = KnowledgeLoader()
         self.language_manager = LanguageManager()
+        self.task_planner = TaskPlanner()
 
     def run(self, question: str, language: str = None, context: UserContext = None) -> dict:
         if context is None:
             context = UserContext(language=self.language_manager.get_language(language))
+
+        task_plan = self.task_planner.plan(question)
 
         recent_memory = self.memory_retriever.get_recent_memories()
         relevant_memory = self.memory_retriever.get_relevant_memories(question)
@@ -50,6 +54,7 @@ class StrategicSession:
             relevant_memory=relevant_memory,
             goals=context.goals,
         )
+        analysis_context.task_plan = task_plan
 
         results = list(
             self.orchestrator.run_all(
