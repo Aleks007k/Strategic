@@ -12,6 +12,11 @@ ai:
   primary_language: python
   mobile_framework: flutter
 
+llm:
+  provider: mock
+  model: strategic-v1
+  temperature: 0.2
+
 language:
   default: ru
   supported:

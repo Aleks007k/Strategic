@@ -11,6 +11,7 @@ from core.context import UserContext
 from core.analysis_context import AnalysisContext
 from engines.analysis_engine import AnalysisEngine
 from engines.response_engine import ResponseEngine
+from engines.llm_engine import LLMEngine
 from memory.memory_manager import MemoryManager
 from memory.memory_classifier import MemoryClassifier
 from memory.memory_retriever import MemoryRetriever
@@ -23,6 +24,7 @@ class StrategicSession:
         self.orchestrator = orchestrator
         self.analysis_engine = AnalysisEngine()
         self.response_engine = ResponseEngine()
+        self.llm_engine = LLMEngine()
         self.memory_manager = MemoryManager()
         self.memory_classifier = MemoryClassifier()
         self.memory_retriever = MemoryRetriever()

@@ -16,3 +16,4 @@ def load_config(path: Path = CONFIG_PATH) -> dict:
 
 
 config = load_config()
+llm_config = config.get("llm", {})
