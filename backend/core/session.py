@@ -29,6 +29,11 @@ class StrategicSession:
         results = [self.orchestrator.run(agent_name, question) for agent_name in self.orchestrator.agents]
         final_analysis = self.analysis_engine.synthesize(results)
         final_analysis["language"] = context.language
+        final_analysis["user_preferences"] = {
+            "tone": context.preferences.get("tone"),
+            "detail_level": context.preferences.get("detail_level"),
+            "focus_areas": context.preferences.get("focus_areas"),
+        }
 
         content = json.dumps(final_analysis, indent=2)
         category = self.memory_classifier.classify(content)
