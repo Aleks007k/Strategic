@@ -4,11 +4,7 @@ LLM abstraction layer
 """
 
 from config import llm_config
-from engines.providers.mock_provider import MockProvider
-
-PROVIDERS = {
-    "mock": MockProvider,
-}
+from engines.providers import PROVIDERS, MockProvider
 
 
 class LLMEngine:
