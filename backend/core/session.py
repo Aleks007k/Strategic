@@ -47,7 +47,11 @@ class StrategicSession:
         )
 
         results = list(
-            self.orchestrator.run_all(analysis_context.question, context=analysis_context.user_context).values()
+            self.orchestrator.run_all(
+                analysis_context.question,
+                context=analysis_context.user_context,
+                analysis_context=analysis_context,
+            ).values()
         )
         final_analysis = self.analysis_engine.synthesize(results)
         final_analysis["language"] = context.language
