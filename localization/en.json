@@ -1,0 +1,5 @@
+{
+  "welcome_message": "Welcome to Strategic - your personal strategic intelligence assistant.",
+  "language_prompt": "Choose language (ru/en) [default: ru]: ",
+  "question_prompt": "Enter your question: "
+}
