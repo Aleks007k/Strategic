@@ -9,6 +9,7 @@ from config import config
 from core.orchestrator import Orchestrator
 from core.session import StrategicSession
 from core.context import UserContext
+from core.user_profile import UserProfile
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
 from agents.technology_analyst import TechnologyAnalyst
@@ -41,7 +42,10 @@ def main():
     question = input(localization.get_text("question_prompt", language))
 
     user_id = "default_user"
-    context = UserContext(language=language, user_id=user_id)
+    loaded_context = UserContext(language=language, user_id=user_id)
+    profile = UserProfile(user_id=user_id, language=language, preferences=loaded_context.preferences)
+    context = UserContext(profile=profile)
+
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
     print(final_analysis)
