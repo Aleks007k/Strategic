@@ -11,5 +11,6 @@ class AgentReasoning:
             "instructions": prompt_context,
             "knowledge": knowledge_context,
             "memory": analysis_context.memory_context if analysis_context else None,
+            "goals": analysis_context.goals if analysis_context else None,
             "user_preferences": user_preferences,
         }

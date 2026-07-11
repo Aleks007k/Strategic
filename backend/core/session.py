@@ -44,6 +44,7 @@ class StrategicSession:
             user_context=context,
             knowledge_context=domain_knowledge,
             memory_context=recent_memories,
+            goals=context.goals,
         )
 
         results = list(

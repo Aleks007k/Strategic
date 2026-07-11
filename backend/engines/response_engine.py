@@ -12,6 +12,7 @@ LABELS = {
         "risks": "Риски",
         "opportunities": "Возможности",
         "recommendations": "Рекомендации",
+        "goals": "Цели пользователя",
     },
     "en": {
         "summary": "Summary",
@@ -19,6 +20,7 @@ LABELS = {
         "risks": "Risks",
         "opportunities": "Opportunities",
         "recommendations": "Recommendations",
+        "goals": "User goals",
     },
 }
 
@@ -30,10 +32,17 @@ class ResponseEngine:
         tone, detail_level = self._resolve_preferences(context)
 
         if tone == "concise":
-            return self._generate_concise(analysis, labels)
-        if detail_level == "high":
-            return self._generate_detailed(analysis, labels)
-        return self._generate_concise(analysis, labels)
+            body = self._generate_concise(analysis, labels)
+        elif detail_level == "high":
+            body = self._generate_detailed(analysis, labels)
+        else:
+            body = self._generate_concise(analysis, labels)
+
+        goals = self._resolve_goals(analysis, context)
+        if goals:
+            body += f"\n\n{labels['goals']}: {', '.join(goals)}"
+
+        return body
 
     def _generate_detailed(self, analysis: dict, labels: dict) -> str:
         lines = [f"{labels['summary']}: {analysis.get('summary', '')}"]
@@ -68,6 +77,12 @@ class ResponseEngine:
     @staticmethod
     def _format_list(items: list) -> list:
         return [f"- {item}" for item in items] if items else ["-"]
+
+    @staticmethod
+    def _resolve_goals(analysis: dict, context) -> list:
+        if context is not None and getattr(context, "goals", None):
+            return context.goals
+        return analysis.get("goals") or []
 
     @staticmethod
     def _resolve_preferences(context):
