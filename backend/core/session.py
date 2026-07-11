@@ -33,7 +33,8 @@ class StrategicSession:
         if context is None:
             context = UserContext(language=self.language_manager.get_language(language))
 
-        recent_memories = self.memory_retriever.get_recent_memories()
+        recent_memory = self.memory_retriever.get_recent_memories()
+        relevant_memory = self.memory_retriever.get_relevant_memories(question)
         domain_knowledge = {
             "economics": self.knowledge_loader.load_domain("economics"),
             "geopolitics": self.knowledge_loader.load_domain("geopolitics"),
@@ -43,7 +44,8 @@ class StrategicSession:
             question=question,
             user_context=context,
             knowledge_context=domain_knowledge,
-            memory_context=recent_memories,
+            recent_memory=recent_memory,
+            relevant_memory=relevant_memory,
             goals=context.goals,
         )
 
