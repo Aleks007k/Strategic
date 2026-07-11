@@ -40,7 +40,8 @@ def main():
     language = language_manager.get_language(input(localization.get_text("language_prompt")))
     question = input(localization.get_text("question_prompt", language))
 
-    context = UserContext(language=language)
+    user_id = "default_user"
+    context = UserContext(language=language, user_id=user_id)
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
     print(final_analysis)
