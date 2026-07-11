@@ -23,5 +23,14 @@ class PreferencesManager:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
 
+    def save_goals(self, user_id: str, goals: list) -> None:
+        preferences = self.load_preferences(user_id)
+        preferences["goals"] = goals
+        self.save_preferences(user_id, preferences)
+
+    def load_goals(self, user_id: str) -> list:
+        preferences = self.load_preferences(user_id)
+        return preferences.get("goals", [])
+
     def _resolve_path(self, user_id: str) -> Path:
         return PREFERENCES_DIR / f"{user_id}.json"
