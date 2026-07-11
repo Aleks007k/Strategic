@@ -1,0 +1,35 @@
+project:
+  name: Strategic
+  version: "2.0"
+  description: "Personal Strategic Intelligence System"
+
+development:
+  stage: MVP
+  target_days: 60
+
+ai:
+  architecture: multi_agent
+  primary_language: python
+  mobile_framework: flutter
+
+models:
+  strategy:
+    provider: flexible
+    local_support: true
+
+agents:
+  core_agents: 12
+  future_target: 50
+
+engines:
+  future_target: 80
+
+cost:
+  development: 0
+  monthly_target: "0-10 EUR"
+
+principles:
+  - simplicity
+  - modularity
+  - low_cost
+  - user_value
