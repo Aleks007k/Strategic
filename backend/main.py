@@ -8,6 +8,7 @@ from datetime import datetime
 from config import config
 from core.orchestrator import Orchestrator
 from core.session import StrategicSession
+from core.context import UserContext
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
 from agents.technology_analyst import TechnologyAnalyst
@@ -38,8 +39,10 @@ def main():
     print(localization.get_text("welcome_message"))
     language = language_manager.get_language(input(localization.get_text("language_prompt")))
     question = input(localization.get_text("question_prompt", language))
+
+    context = UserContext(language=language)
     session = StrategicSession(orchestrator)
-    final_analysis = session.run(question, language=language)
+    final_analysis = session.run(question, context=context)
     print(final_analysis)
 
 
