@@ -30,7 +30,8 @@ def main():
     print(get_status())
     print(f"Registered agents: {list(orchestrator.agents.keys())}")
 
-    question = "What should I focus on this quarter?"
+    print("Welcome to Strategic - your personal strategic intelligence assistant.")
+    question = input("Enter your question: ")
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question)
     print(final_analysis)
