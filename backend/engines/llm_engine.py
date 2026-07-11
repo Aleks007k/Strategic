@@ -12,8 +12,8 @@ class LLMEngine:
     def __init__(self):
         self.router = LLMRouter()
         self.usage_tracker = UsageTracker()
-        provider_name = self.router.select_provider()
-        provider_class = PROVIDERS.get(provider_name, MockProvider)
+        self.provider_name = self.router.select_provider()
+        provider_class = PROVIDERS.get(self.provider_name, MockProvider)
         self.provider = provider_class()
 
     def generate(self, reasoning_context: dict) -> dict:
@@ -32,4 +32,17 @@ class LLMEngine:
         }
 
     def generate_analysis(self, llm_input: dict) -> dict:
-        return self.provider.generate_analysis(llm_input)
+        try:
+            return self.provider.generate_analysis(llm_input)
+        except RuntimeError as primary_error:
+            for fallback_name in self.router.get_provider_chain():
+                if fallback_name == self.provider_name:
+                    continue
+                fallback_class = PROVIDERS.get(fallback_name)
+                if fallback_class is None:
+                    continue
+                try:
+                    return fallback_class().generate_analysis(llm_input)
+                except RuntimeError:
+                    continue
+            raise primary_error
