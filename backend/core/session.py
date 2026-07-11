@@ -13,6 +13,7 @@ from engines.analysis_engine import AnalysisEngine
 from engines.response_engine import ResponseEngine
 from memory.memory_manager import MemoryManager
 from memory.memory_classifier import MemoryClassifier
+from memory.memory_retriever import MemoryRetriever
 from language.language_manager import LanguageManager
 
 
@@ -23,13 +24,15 @@ class StrategicSession:
         self.response_engine = ResponseEngine()
         self.memory_manager = MemoryManager()
         self.memory_classifier = MemoryClassifier()
+        self.memory_retriever = MemoryRetriever()
         self.language_manager = LanguageManager()
 
     def run(self, question: str, language: str = None, context: UserContext = None) -> dict:
         if context is None:
             context = UserContext(language=self.language_manager.get_language(language))
 
-        analysis_context = AnalysisContext(question=question, user_context=context)
+        recent_memories = self.memory_retriever.get_recent_memories()
+        analysis_context = AnalysisContext(question=question, user_context=context, memory_context=recent_memories)
 
         results = list(
             self.orchestrator.run_all(analysis_context.question, context=analysis_context.user_context).values()
