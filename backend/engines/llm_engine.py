@@ -3,13 +3,14 @@ Strategic AI Core Backend
 LLM abstraction layer
 """
 
-from config import llm_config
+from engines.llm_router import LLMRouter
 from engines.providers import PROVIDERS, MockProvider
 
 
 class LLMEngine:
     def __init__(self):
-        provider_name = llm_config.get("provider", "mock")
+        self.router = LLMRouter()
+        provider_name = self.router.select_provider()
         provider_class = PROVIDERS.get(provider_name, MockProvider)
         self.provider = provider_class()
 
