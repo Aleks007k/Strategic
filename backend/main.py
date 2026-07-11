@@ -31,9 +31,10 @@ def main():
     print(f"Registered agents: {list(orchestrator.agents.keys())}")
 
     print("Welcome to Strategic - your personal strategic intelligence assistant.")
+    language = input("Choose language (ru/en) [default: ru]: ")
     question = input("Enter your question: ")
     session = StrategicSession(orchestrator)
-    final_analysis = session.run(question)
+    final_analysis = session.run(question, language=language)
     print(final_analysis)
 
 
