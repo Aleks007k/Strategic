@@ -1,0 +1,21 @@
+{
+  "summary": "Combined analysis from 3 agents.",
+  "perspectives": [
+    {
+      "agent": "Strategic Analyst",
+      "summary": "Analysis not yet implemented."
+    },
+    {
+      "agent": "Economic Analyst",
+      "summary": "Analysis not yet implemented."
+    },
+    {
+      "agent": "Technology Analyst",
+      "summary": "Analysis not yet implemented."
+    }
+  ],
+  "risks": [],
+  "opportunities": [],
+  "recommendations": [],
+  "strategic_view": "3 perspectives combined: 0 risk(s), 0 opportunity(ies), 0 recommendation(s) identified."
+}

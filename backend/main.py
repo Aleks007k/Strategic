@@ -7,10 +7,10 @@ from datetime import datetime
 
 from config import config
 from core.orchestrator import Orchestrator
+from core.session import StrategicSession
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
 from agents.technology_analyst import TechnologyAnalyst
-from engines.analysis_engine import AnalysisEngine
 
 
 def get_status():
@@ -31,13 +31,9 @@ def main():
     print(f"Registered agents: {list(orchestrator.agents.keys())}")
 
     question = "What should I focus on this quarter?"
-    results = [orchestrator.run(agent_name, question) for agent_name in orchestrator.agents]
-    for result in results:
-        print(result)
-
-    engine = AnalysisEngine()
-    combined = engine.synthesize(results)
-    print(combined)
+    session = StrategicSession(orchestrator)
+    final_analysis = session.run(question)
+    print(final_analysis)
 
 
 if __name__ == "__main__":
