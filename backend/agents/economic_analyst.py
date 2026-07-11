@@ -15,7 +15,7 @@ class EconomicAnalyst(BaseAgent):
         self.knowledge_loader = KnowledgeLoader()
         self.prompt_loader = PromptLoader()
 
-    def run(self, question: str, context=None) -> dict:
+    def run(self, question: str, context=None, analysis_context=None) -> dict:
         knowledge_context = self.knowledge_loader.load_domain("economics")
         prompt_context = self.prompt_loader.load_prompt("economic_analyst")
         user_preferences = context.preferences if context else {}
@@ -26,6 +26,11 @@ class EconomicAnalyst(BaseAgent):
             "knowledge_context": knowledge_context,
             "prompt_context": prompt_context,
             "user_preferences": user_preferences,
+            "analysis_context": {
+                "question": analysis_context.question if analysis_context else None,
+                "memory_context": analysis_context.memory_context if analysis_context else None,
+                "knowledge_context": analysis_context.knowledge_context if analysis_context else None,
+            },
             "analysis": {
                 "summary": "Analysis not yet implemented.",
                 "economic_factors": [],
