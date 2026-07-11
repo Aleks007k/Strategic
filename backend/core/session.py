@@ -14,6 +14,7 @@ from engines.response_engine import ResponseEngine
 from memory.memory_manager import MemoryManager
 from memory.memory_classifier import MemoryClassifier
 from memory.memory_retriever import MemoryRetriever
+from knowledge.knowledge_loader import KnowledgeLoader
 from language.language_manager import LanguageManager
 
 
@@ -25,6 +26,7 @@ class StrategicSession:
         self.memory_manager = MemoryManager()
         self.memory_classifier = MemoryClassifier()
         self.memory_retriever = MemoryRetriever()
+        self.knowledge_loader = KnowledgeLoader()
         self.language_manager = LanguageManager()
 
     def run(self, question: str, language: str = None, context: UserContext = None) -> dict:
@@ -32,7 +34,17 @@ class StrategicSession:
             context = UserContext(language=self.language_manager.get_language(language))
 
         recent_memories = self.memory_retriever.get_recent_memories()
-        analysis_context = AnalysisContext(question=question, user_context=context, memory_context=recent_memories)
+        domain_knowledge = {
+            "economics": self.knowledge_loader.load_domain("economics"),
+            "geopolitics": self.knowledge_loader.load_domain("geopolitics"),
+            "technology": self.knowledge_loader.load_domain("technology"),
+        }
+        analysis_context = AnalysisContext(
+            question=question,
+            user_context=context,
+            knowledge_context=domain_knowledge,
+            memory_context=recent_memories,
+        )
 
         results = list(
             self.orchestrator.run_all(analysis_context.question, context=analysis_context.user_context).values()
