@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 
 from core.orchestrator import Orchestrator
+from core.context import UserContext
 from engines.analysis_engine import AnalysisEngine
 from memory.memory_manager import MemoryManager
 from memory.memory_classifier import MemoryClassifier
@@ -21,12 +22,13 @@ class StrategicSession:
         self.memory_classifier = MemoryClassifier()
         self.language_manager = LanguageManager()
 
-    def run(self, question: str, language: str = None) -> dict:
-        resolved_language = self.language_manager.get_language(language)
+    def run(self, question: str, language: str = None, context: UserContext = None) -> dict:
+        if context is None:
+            context = UserContext(language=self.language_manager.get_language(language))
 
         results = [self.orchestrator.run(agent_name, question) for agent_name in self.orchestrator.agents]
         final_analysis = self.analysis_engine.synthesize(results)
-        final_analysis["language"] = resolved_language
+        final_analysis["language"] = context.language
 
         content = json.dumps(final_analysis, indent=2)
         category = self.memory_classifier.classify(content)
