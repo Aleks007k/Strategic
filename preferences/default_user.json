@@ -1,0 +1,10 @@
+{
+  "language": "ru",
+  "tone": "balanced",
+  "detail_level": "high",
+  "focus_areas": [
+    "geopolitics",
+    "economics",
+    "technology"
+  ]
+}
