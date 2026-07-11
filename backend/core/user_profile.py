@@ -3,6 +3,8 @@ Strategic AI Core Backend
 User profile model
 """
 
+from preferences.preferences_manager import PreferencesManager
+
 
 class UserProfile:
     def __init__(
@@ -15,6 +17,10 @@ class UserProfile:
         self.user_id = user_id
         self.language = language
         self.preferences = preferences or {}
+
+        if goals is None and user_id is not None:
+            goals = PreferencesManager().load_goals(user_id)
+
         self.goals = goals or []
 
     def to_dict(self) -> dict:
