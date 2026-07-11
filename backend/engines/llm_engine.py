@@ -3,8 +3,20 @@ Strategic AI Core Backend
 LLM abstraction layer
 """
 
+from config import llm_config
+from engines.providers.mock_provider import MockProvider
+
+PROVIDERS = {
+    "mock": MockProvider,
+}
+
 
 class LLMEngine:
+    def __init__(self):
+        provider_name = llm_config.get("provider", "mock")
+        provider_class = PROVIDERS.get(provider_name, MockProvider)
+        self.provider = provider_class()
+
     def generate(self, reasoning_context: dict) -> dict:
         question = reasoning_context.get("question") if reasoning_context else None
         if question:
@@ -21,23 +33,4 @@ class LLMEngine:
         }
 
     def generate_analysis(self, llm_input: dict) -> dict:
-        agent_name = llm_input.get("agent")
-        reasoning_context = llm_input.get("reasoning_context") or {}
-
-        question = reasoning_context.get("question")
-        user_preferences = reasoning_context.get("user_preferences") or {}
-        focus_areas = user_preferences.get("focus_areas") or []
-
-        if question:
-            summary = f"{agent_name} analysis for: {question}"
-        else:
-            summary = f"{agent_name} analysis pending a question."
-
-        return {
-            "agent": agent_name,
-            "summary": summary,
-            "key_factors": list(focus_areas),
-            "risks": [],
-            "opportunities": [],
-            "recommendations": [],
-        }
+        return self.provider.generate_analysis(llm_input)
