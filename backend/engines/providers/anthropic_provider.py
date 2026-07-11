@@ -9,6 +9,7 @@ import anthropic
 
 from config import ANTHROPIC_API_KEY, llm_config
 from engines.providers.base_provider import BaseProvider
+from engines.usage_tracker import UsageTracker
 
 DEFAULT_MODEL = "claude-opus-4-8"
 
@@ -27,6 +28,9 @@ RESPONSE_SCHEMA = {
 
 
 class AnthropicProvider(BaseProvider):
+    def __init__(self):
+        self.usage_tracker = UsageTracker()
+
     def generate_analysis(self, llm_input: dict) -> dict:
         if not ANTHROPIC_API_KEY:
             raise RuntimeError(
@@ -50,6 +54,14 @@ class AnthropicProvider(BaseProvider):
             )
         except anthropic.APIError as e:
             raise RuntimeError(f"Anthropic API request failed: {e}") from e
+
+        usage = getattr(response, "usage", None)
+        self.usage_tracker.record_usage(
+            provider="anthropic",
+            model=model,
+            input_tokens=getattr(usage, "input_tokens", 0) if usage else 0,
+            output_tokens=getattr(usage, "output_tokens", 0) if usage else 0,
+        )
 
         text = next((block.text for block in response.content if block.type == "text"), None)
         if text is None:

@@ -5,11 +5,13 @@ LLM abstraction layer
 
 from engines.llm_router import LLMRouter
 from engines.providers import PROVIDERS, MockProvider
+from engines.usage_tracker import UsageTracker
 
 
 class LLMEngine:
     def __init__(self):
         self.router = LLMRouter()
+        self.usage_tracker = UsageTracker()
         provider_name = self.router.select_provider()
         provider_class = PROVIDERS.get(provider_name, MockProvider)
         self.provider = provider_class()
