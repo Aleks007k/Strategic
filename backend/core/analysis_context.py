@@ -13,6 +13,7 @@ class AnalysisContext:
         recent_memory=None,
         relevant_memory=None,
         goals: list = None,
+        review_context=None,
     ):
         self.question = question
         self.user_context = user_context
@@ -20,6 +21,7 @@ class AnalysisContext:
         self.recent_memory = recent_memory
         self.relevant_memory = relevant_memory
         self.goals = goals or []
+        self.review_context = review_context
 
     @property
     def memory_context(self):
@@ -33,4 +35,5 @@ class AnalysisContext:
             "recent_memory": self.recent_memory,
             "relevant_memory": self.relevant_memory,
             "goals": self.goals,
+            "review_context": self.review_context,
         }
