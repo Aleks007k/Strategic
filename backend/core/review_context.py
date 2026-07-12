@@ -7,6 +7,7 @@ from engines.consensus_engine import ConsensusEngine
 from engines.review_engine import ReviewEngine
 from engines.argument_engine import ArgumentEngine
 from engines.debate_engine import DebateEngine
+from engines.decision_engine import DecisionEngine
 
 
 class ReviewContext:
@@ -16,6 +17,7 @@ class ReviewContext:
         self.consensus = None
         self.arguments = None
         self.debates = None
+        self.decision = None
 
     def add_analysis(self, agent_name: str, analysis) -> None:
         self.analyses[agent_name] = analysis
@@ -49,6 +51,11 @@ class ReviewContext:
         self.debates = engine.debate(self.arguments, self.comments)
         return self.debates
 
+    def build_decision(self) -> dict:
+        engine = DecisionEngine()
+        self.decision = engine.decide(self.consensus, self.arguments, self.debates)
+        return self.decision
+
     def to_dict(self) -> dict:
         return {
             "analyses": self.analyses,
@@ -56,4 +63,5 @@ class ReviewContext:
             "consensus": self.consensus,
             "arguments": self.arguments,
             "debates": self.debates,
+            "decision": self.decision,
         }
