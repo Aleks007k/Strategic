@@ -10,6 +10,7 @@ from core.orchestrator import Orchestrator
 from core.context import UserContext
 from core.analysis_context import AnalysisContext
 from core.task_planner import TaskPlanner
+from core.review_context import ReviewContext
 from engines.analysis_engine import AnalysisEngine
 from engines.response_engine import ResponseEngine
 from engines.llm_engine import LLMEngine
@@ -56,13 +57,12 @@ class StrategicSession:
         )
         analysis_context.task_plan = task_plan
 
-        results = list(
-            self.orchestrator.run_all(
-                analysis_context.question,
-                context=analysis_context.user_context,
-                analysis_context=analysis_context,
-            ).values()
+        agent_results = self.orchestrator.run_all(
+            analysis_context.question,
+            context=analysis_context.user_context,
+            analysis_context=analysis_context,
         )
+        results = list(agent_results.values())
         final_analysis = self.analysis_engine.synthesize(results)
         final_analysis["language"] = context.language
         final_analysis["user_preferences"] = {
@@ -70,6 +70,13 @@ class StrategicSession:
             "detail_level": context.preferences.get("detail_level"),
             "focus_areas": context.preferences.get("focus_areas"),
         }
+
+        review_context = ReviewContext()
+        for agent_name, result in agent_results.items():
+            review_context.add_analysis(agent_name, result.get("analysis"))
+        review_context.build_consensus()
+        final_analysis["review_context"] = review_context.to_dict()
+
         final_analysis["response_text"] = self.response_engine.generate(final_analysis, context=context)
 
         content = json.dumps(final_analysis, indent=2)
