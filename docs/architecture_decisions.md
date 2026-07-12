@@ -123,6 +123,17 @@ Speed and a single-model chat loop are explicitly *not* the design target. Depth
   - dynamic weights based on question context
   - user-adjustable weighting preferences
 
+### Information Gap Resolution Loop
+
+- **Decision:** Strategic should not always answer immediately. Before deep analysis, the system should detect missing information and, when necessary, request additional user input or gather additional context.
+- **Reason:** Strategic decisions depend on context. Asking for missing information improves analysis quality and prevents shallow generic answers.
+- **Future expansion:**
+  - automatic missing information detection
+  - user clarification dialogue
+  - integration with user memory
+  - external information gathering
+  - confidence improvement after additional context
+
 ---
 
 ## 3. Design Principles
