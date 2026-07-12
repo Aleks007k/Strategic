@@ -6,6 +6,7 @@ Inter-agent review context
 from engines.consensus_engine import ConsensusEngine
 from engines.review_engine import ReviewEngine
 from engines.argument_engine import ArgumentEngine
+from engines.debate_engine import DebateEngine
 
 
 class ReviewContext:
@@ -14,6 +15,7 @@ class ReviewContext:
         self.comments = {}
         self.consensus = None
         self.arguments = None
+        self.debates = None
 
     def add_analysis(self, agent_name: str, analysis) -> None:
         self.analyses[agent_name] = analysis
@@ -42,10 +44,16 @@ class ReviewContext:
         self.arguments = engine.build_arguments(self.analyses)
         return self.arguments
 
+    def build_debates(self) -> dict:
+        engine = DebateEngine()
+        self.debates = engine.debate(self.arguments, self.comments)
+        return self.debates
+
     def to_dict(self) -> dict:
         return {
             "analyses": self.analyses,
             "comments": self.comments,
             "consensus": self.consensus,
             "arguments": self.arguments,
+            "debates": self.debates,
         }
