@@ -112,6 +112,17 @@ Speed and a single-model chat loop are explicitly *not* the design target. Depth
 - **Reason:** Experts should differ because they execute different methodologies, not because they use different prompts.
 - **Future expansion:** Executable methodologies. Skill chaining. Reusable reasoning modules. Probabilistic skill outputs.
 
+### Expert Weighting System
+
+- **Decision:** Strategic does not treat all expert opinions as equal. Expert contributions should be weighted based on relevance, expertise, skills, confidence, and future performance history.
+- **Reason:** Strategic decisions require synthesis of specialized knowledge rather than simple averaging of opinions.
+- **Future expansion:**
+  - domain relevance scoring
+  - expertise confidence
+  - historical prediction accuracy
+  - dynamic weights based on question context
+  - user-adjustable weighting preferences
+
 ---
 
 ## 3. Design Principles
