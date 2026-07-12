@@ -88,6 +88,30 @@ Speed and a single-model chat loop are explicitly *not* the design target. Depth
 - **Reason:** A single agent's answer is just an opinion. Comparing multiple experts' answers, letting them (structurally) challenge each other, and only then deciding what to trust is what turns independent outputs into something closer to a genuine strategic judgment — and it produces an explicit, inspectable trail for *why* a conclusion was accepted or flagged, rather than a black box.
 - **Future expansion:** This is the layer most likely to gain real LLM-driven reasoning later (e.g. actual argumentative debate rather than summary-string comparison) — the deterministic scaffolding built first defines the exact shape that future intelligence needs to fill.
 
+### Vertical Slice Development
+
+- **Decision:** After completing the core infrastructure, development should continue primarily through vertical slices instead of creating many isolated foundation classes.
+- **Reason:** This allows the system to become executable earlier, exposes architectural weaknesses sooner, improves testing, and gradually transforms the architecture into a working strategic reasoning system.
+- **Future expansion:** Each new vertical slice should integrate existing components before introducing new abstractions.
+
+### Value-Driven Components
+
+- **Decision:** Every newly introduced class must add unique architectural value. Components that only duplicate responsibilities of existing classes should not be created.
+- **Reason:** Prevents unnecessary complexity, reduces architectural drift, and keeps the Strategic architecture maintainable.
+- **Future expansion:** Future architecture reviews may merge or remove components that violate this principle.
+
+### User Memory Before Clarification
+
+- **Decision:** Before requesting additional information from the user, Strategic must first use all reliable long-term knowledge already available about the user.
+- **Reason:** Strategic should never ask questions that it already knows the answer to. This creates a significantly more intelligent strategic assistant and reduces unnecessary interaction.
+- **Future expansion:** Memory confidence scoring. Memory freshness. User-controlled memory editing.
+
+### Executable Skills
+
+- **Decision:** Skills are not only metadata. In future versions every Skill will become an executable methodology capable of producing structured intermediate reasoning.
+- **Reason:** Experts should differ because they execute different methodologies, not because they use different prompts.
+- **Future expansion:** Executable methodologies. Skill chaining. Reusable reasoning modules. Probabilistic skill outputs.
+
 ---
 
 ## 3. Design Principles
