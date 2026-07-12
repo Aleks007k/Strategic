@@ -4,6 +4,7 @@ Inter-agent review context
 """
 
 from engines.consensus_engine import ConsensusEngine
+from engines.review_engine import ReviewEngine
 
 
 class ReviewContext:
@@ -25,6 +26,14 @@ class ReviewContext:
         engine = ConsensusEngine()
         self.consensus = engine.find_consensus(self.analyses)
         return self.consensus
+
+    def build_reviews(self) -> dict:
+        engine = ReviewEngine()
+        result = engine.review(self.analyses)
+        for to_agent, entries in result["comments"].items():
+            for entry in entries:
+                self.add_comment(entry["from"], to_agent, entry["comment"])
+        return result
 
     def to_dict(self) -> dict:
         return {
