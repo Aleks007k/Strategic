@@ -13,14 +13,6 @@ REQUIRED_INFORMATION = [
     "success criteria",
 ]
 
-CONTEXT_FIELDS = [
-    "facts",
-    "preferences",
-    "constraints",
-    "previous_decisions",
-    "relevant_history",
-]
-
 QUESTION_TEMPLATE = "What is your {item}?"
 _TEMPLATE_PREFIX, _TEMPLATE_SUFFIX = QUESTION_TEMPLATE.split("{item}")
 
@@ -38,10 +30,9 @@ DEFAULT_FIELD = "facts"
 class InputAnalysisEngine:
     def analyze(self, question: str, context=None, goal=None) -> dict:
         information_gap = InformationGap()
-        known_text = self._build_known_text(context)
 
         for item in REQUIRED_INFORMATION:
-            if item not in known_text:
+            if not self._is_known(item, context):
                 information_gap.add_missing_information(item)
 
         return {
@@ -51,16 +42,15 @@ class InputAnalysisEngine:
             "information_gap": information_gap,
         }
 
-    @staticmethod
-    def _build_known_text(context) -> str:
+    @classmethod
+    def _is_known(cls, item: str, context) -> bool:
         if not isinstance(context, dict):
-            return ""
+            return False
 
-        values = []
-        for field in CONTEXT_FIELDS:
-            values.extend(context.get(field) or [])
+        field = cls.map_topic_to_field(item)
+        values = context.get(field) or []
 
-        return " ".join(str(value) for value in values).lower()
+        return len(values) > 0
 
     @staticmethod
     def build_question(item: str) -> str:
