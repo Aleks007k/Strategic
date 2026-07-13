@@ -6,6 +6,9 @@ Strategic executor
 from core.analysis_session import AnalysisSession
 from core.expert_catalog import ExpertCatalog
 from core.council import Council
+from core.strategic_workflow import StrategicWorkflow
+from core.workflow_state import WorkflowState
+from core.strategic_orchestrator import StrategicOrchestrator
 
 
 class StrategicExecutor:
@@ -26,7 +29,13 @@ class StrategicExecutor:
         self.expert_catalog = ExpertCatalog()
         self.expert_catalog.load_default_experts()
 
+        self.strategic_orchestrator = StrategicOrchestrator(workflow=StrategicWorkflow())
+
     def execute(self, question: str) -> dict:
+        session = AnalysisSession()
+        session.workflow_state = WorkflowState()
+        self.strategic_orchestrator.start(session)
+
         selection = {"selected_experts": []}
         council = Council()
 
@@ -45,10 +54,12 @@ class StrategicExecutor:
         mission = None
         if self.mission_builder is not None:
             mission = self.mission_builder.build(question, council=council)
+            session.mission = mission
+            self.strategic_orchestrator.advance_stage("planning")
 
-        session = AnalysisSession(mission=mission)
         if self.reasoning_pipeline is not None:
             session = self.reasoning_pipeline.prepare(session)
+            self.strategic_orchestrator.advance_stage("agents")
 
         synthesis = {
             "experts_count": 0,
@@ -61,6 +72,7 @@ class StrategicExecutor:
         }
         if self.strategic_synthesis_engine is not None:
             synthesis = self.strategic_synthesis_engine.synthesize(list(session.results.values()))
+            self.strategic_orchestrator.advance_stage("consensus")
 
         return {
             "question": question,
@@ -68,4 +80,5 @@ class StrategicExecutor:
             "selection": selection,
             "session": session.to_dict(),
             "synthesis": synthesis,
+            "workflow_state": session.workflow_state.to_dict(),
         }
