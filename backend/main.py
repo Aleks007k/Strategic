@@ -9,7 +9,10 @@ from config import config
 from core.orchestrator import Orchestrator
 from core.session import StrategicSession
 from core.context import UserContext
+from core.user_context import UserContext as MemoryUserContext
 from core.user_profile import UserProfile
+from core.strategic_executor import StrategicExecutor
+from preferences.preferences_manager import PreferencesManager
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
 from agents.technology_analyst import TechnologyAnalyst
@@ -45,6 +48,16 @@ def main():
     loaded_context = UserContext(language=language, user_id=user_id)
     profile = UserProfile(user_id=user_id, language=language, preferences=loaded_context.preferences)
     context = UserContext(profile=profile)
+
+    stored_memory = PreferencesManager().load_preferences(user_id)
+    memory_context = MemoryUserContext(
+        facts=stored_memory.get("facts"),
+        preferences=stored_memory.get("preferences"),
+        constraints=stored_memory.get("constraints"),
+        previous_decisions=stored_memory.get("previous_decisions"),
+        relevant_history=stored_memory.get("relevant_history"),
+    )
+    strategic_executor = StrategicExecutor(user_context=memory_context)
 
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
