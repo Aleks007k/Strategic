@@ -19,12 +19,14 @@ class StrategicExecutor:
         reasoning_pipeline=None,
         strategic_synthesis_engine=None,
         input_analysis_engine=None,
+        user_context=None,
     ):
         self.mission_builder = mission_builder
         self.expert_selection_engine = expert_selection_engine
         self.reasoning_pipeline = reasoning_pipeline
         self.strategic_synthesis_engine = strategic_synthesis_engine
         self.input_analysis_engine = input_analysis_engine
+        self.user_context = user_context
 
         # TODO: ExpertCatalog is a temporary expert source for wiring purposes.
         # It will later be replaced by a generic expert provider.
@@ -39,7 +41,8 @@ class StrategicExecutor:
         self.strategic_orchestrator.session = session
 
         if self.input_analysis_engine is not None:
-            analysis_result = self.input_analysis_engine.analyze(question)
+            memory_context = self.user_context.to_dict() if self.user_context is not None else None
+            analysis_result = self.input_analysis_engine.analyze(question, context=memory_context)
             information_gap = analysis_result.get("information_gap")
             session.workflow_state.data["input_analysis"] = {
                 "question": analysis_result.get("question"),
