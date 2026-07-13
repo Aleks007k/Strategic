@@ -19,6 +19,7 @@ class AnalysisEngine:
                     "skills": reasoning_package.get("skills"),
                     "methodologies": reasoning_package.get("methodologies"),
                     "analysis_steps": reasoning_package.get("analysis_steps"),
+                    "question": reasoning_package.get("mission", {}).get("question"),
                 },
             }
             result = self.llm_provider.generate_analysis(llm_input)
