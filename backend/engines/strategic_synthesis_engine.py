@@ -62,3 +62,59 @@ class StrategicSynthesisEngine:
             "confidence_summary": confidence_summary,
             "factor_agreement": factor_agreement,
         }
+
+    def format_response(self, synthesis: dict) -> str:
+        data = synthesis if isinstance(synthesis, dict) else {}
+
+        experts_count = data.get("experts_count") or 0
+        perspectives = data.get("perspectives") or []
+        factor_agreement = data.get("factor_agreement") or []
+        confidence_summary = data.get("confidence_summary")
+
+        perspective_lines = [
+            f"- {perspective.get('agent')}: {perspective.get('summary')}"
+            for perspective in perspectives
+            if isinstance(perspective, dict)
+        ]
+        factor_agreement_lines = [
+            f"- {entry.get('factor')} ({entry.get('agreement_score')})"
+            for entry in factor_agreement
+            if isinstance(entry, dict)
+        ]
+
+        lines = [f"Experts: {experts_count}"]
+
+        lines.append("")
+        lines.append("Perspectives:")
+        lines.extend(perspective_lines or ["-"])
+
+        lines.append("")
+        lines.append("Common factors:")
+        lines.extend(self._format_items(data.get("common_factors")))
+
+        lines.append("")
+        lines.append("Factor agreement:")
+        lines.extend(factor_agreement_lines or ["-"])
+
+        lines.append("")
+        lines.append("Risks:")
+        lines.extend(self._format_items(data.get("combined_risks")))
+
+        lines.append("")
+        lines.append("Opportunities:")
+        lines.extend(self._format_items(data.get("combined_opportunities")))
+
+        lines.append("")
+        lines.append("Conflicting factors:")
+        lines.extend(self._format_items(data.get("conflicting_factors")))
+
+        lines.append("")
+        lines.append("Confidence:")
+        lines.append(f"- {confidence_summary if confidence_summary is not None else 'N/A'}")
+
+        return "\n".join(lines)
+
+    @staticmethod
+    def _format_items(items) -> list:
+        valid_items = [item for item in (items or []) if item is not None]
+        return [f"- {item}" for item in valid_items] if valid_items else ["-"]
