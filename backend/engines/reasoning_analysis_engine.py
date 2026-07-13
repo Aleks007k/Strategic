@@ -21,7 +21,18 @@ class AnalysisEngine:
                     "analysis_steps": reasoning_package.get("analysis_steps"),
                 },
             }
-            return self.llm_provider.generate_analysis(llm_input)
+            result = self.llm_provider.generate_analysis(llm_input)
+            result = result if isinstance(result, dict) else {}
+
+            return {
+                "agent": reasoning_package.get("agent"),
+                "summary": result.get("summary"),
+                "key_factors": result.get("key_factors", []),
+                "risks": result.get("risks", []),
+                "opportunities": result.get("opportunities", []),
+                "assumptions": result.get("assumptions", []),
+                "confidence": result.get("confidence"),
+            }
 
         if isinstance(reasoning_package, dict):
             agent_name = reasoning_package.get("agent")
