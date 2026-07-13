@@ -12,6 +12,7 @@ from core.context import UserContext
 from core.user_context import UserContext as MemoryUserContext
 from core.user_profile import UserProfile
 from core.strategic_executor import StrategicExecutor
+from core.information_manager import InformationManager
 from preferences.preferences_manager import PreferencesManager
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
@@ -57,7 +58,15 @@ def main():
         previous_decisions=stored_memory.get("previous_decisions"),
         relevant_history=stored_memory.get("relevant_history"),
     )
-    strategic_executor = StrategicExecutor(user_context=memory_context)
+    information_manager = InformationManager()
+    strategic_executor = StrategicExecutor(user_context=memory_context, information_manager=information_manager)
+
+    executor_result = strategic_executor.execute(question)
+    clarification = executor_result.get("workflow_state", {}).get("data", {}).get("clarification", {})
+    for clarification_question in clarification.get("questions", []):
+        print(clarification_question)
+        answer = input(f"{clarification_question} ")
+        information_manager.add_answer(clarification_question, answer)
 
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
