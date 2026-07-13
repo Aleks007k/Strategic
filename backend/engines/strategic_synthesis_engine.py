@@ -11,6 +11,7 @@ class StrategicSynthesisEngine:
         perspectives = []
         combined_risks = []
         combined_opportunities = []
+        confidence_values = []
         for result in results:
             if not isinstance(result, dict):
                 continue
@@ -22,6 +23,12 @@ class StrategicSynthesisEngine:
             combined_risks.extend(result.get("risks") or [])
             combined_opportunities.extend(result.get("opportunities") or [])
 
+            confidence = result.get("confidence")
+            if isinstance(confidence, (int, float)) and not isinstance(confidence, bool):
+                confidence_values.append(confidence)
+
+        confidence_summary = sum(confidence_values) / len(confidence_values) if confidence_values else None
+
         return {
             "experts_count": len(results),
             "perspectives": perspectives,
@@ -29,5 +36,5 @@ class StrategicSynthesisEngine:
             "conflicting_factors": [],
             "combined_risks": combined_risks,
             "combined_opportunities": combined_opportunities,
-            "confidence_summary": None,
+            "confidence_summary": confidence_summary,
         }
