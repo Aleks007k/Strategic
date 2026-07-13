@@ -13,6 +13,7 @@ from core.user_context import UserContext as MemoryUserContext
 from core.user_profile import UserProfile
 from core.strategic_executor import StrategicExecutor
 from core.information_manager import InformationManager
+from engines.input_analysis_engine import InputAnalysisEngine
 from preferences.preferences_manager import PreferencesManager
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
@@ -67,6 +68,19 @@ def main():
         print(clarification_question)
         answer = input(f"{clarification_question} ")
         information_manager.add_answer(clarification_question, answer)
+
+    field_targets = {
+        "facts": (memory_context.facts, memory_context.add_fact),
+        "preferences": (memory_context.preferences, memory_context.add_preference),
+        "constraints": (memory_context.constraints, memory_context.add_constraint),
+        "previous_decisions": (memory_context.previous_decisions, memory_context.add_decision),
+        "relevant_history": (memory_context.relevant_history, memory_context.add_history),
+    }
+    for answered_question, answered_value in information_manager.clarification_context.answers.items():
+        field = InputAnalysisEngine.map_question_to_field(answered_question)
+        target_list, add_to_field = field_targets.get(field, (None, None))
+        if target_list is not None and answered_value not in target_list:
+            add_to_field(answered_value)
 
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
