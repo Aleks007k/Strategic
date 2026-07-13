@@ -9,6 +9,10 @@ from core.council import Council
 from core.strategic_workflow import StrategicWorkflow
 from core.workflow_state import WorkflowState
 from core.strategic_orchestrator import StrategicOrchestrator
+from core.mission_builder import MissionBuilder
+from engines.expert_selection_engine import ExpertSelectionEngine
+from engines.strategic_synthesis_engine import StrategicSynthesisEngine
+from engines.input_analysis_engine import InputAnalysisEngine
 
 
 class StrategicExecutor:
@@ -22,11 +26,11 @@ class StrategicExecutor:
         user_context=None,
         information_manager=None,
     ):
-        self.mission_builder = mission_builder
-        self.expert_selection_engine = expert_selection_engine
+        self.mission_builder = mission_builder or MissionBuilder()
+        self.expert_selection_engine = expert_selection_engine or ExpertSelectionEngine()
         self.reasoning_pipeline = reasoning_pipeline
-        self.strategic_synthesis_engine = strategic_synthesis_engine
-        self.input_analysis_engine = input_analysis_engine
+        self.strategic_synthesis_engine = strategic_synthesis_engine or StrategicSynthesisEngine()
+        self.input_analysis_engine = input_analysis_engine or InputAnalysisEngine()
         self.user_context = user_context
         self.information_manager = information_manager
 
