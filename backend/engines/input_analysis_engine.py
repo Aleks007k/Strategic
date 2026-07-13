@@ -21,6 +21,19 @@ CONTEXT_FIELDS = [
     "relevant_history",
 ]
 
+QUESTION_TEMPLATE = "What is your {item}?"
+_TEMPLATE_PREFIX, _TEMPLATE_SUFFIX = QUESTION_TEMPLATE.split("{item}")
+
+TOPIC_FIELD_MAP = {
+    "budget": "constraints",
+    "timeframe": "constraints",
+    "risk tolerance": "preferences",
+    "priorities": "preferences",
+    "success criteria": "facts",
+}
+
+DEFAULT_FIELD = "facts"
+
 
 class InputAnalysisEngine:
     def analyze(self, question: str, context=None, goal=None) -> dict:
@@ -48,3 +61,29 @@ class InputAnalysisEngine:
             values.extend(context.get(field) or [])
 
         return " ".join(str(value) for value in values).lower()
+
+    @staticmethod
+    def build_question(item: str) -> str:
+        return QUESTION_TEMPLATE.format(item=item)
+
+    @staticmethod
+    def extract_topic(question: str):
+        if not isinstance(question, str):
+            return None
+
+        if not question.startswith(_TEMPLATE_PREFIX) or not question.endswith(_TEMPLATE_SUFFIX):
+            return None
+
+        return question[len(_TEMPLATE_PREFIX):len(question) - len(_TEMPLATE_SUFFIX)]
+
+    @staticmethod
+    def map_topic_to_field(topic: str) -> str:
+        return TOPIC_FIELD_MAP.get(topic, DEFAULT_FIELD)
+
+    @classmethod
+    def map_question_to_field(cls, question: str):
+        topic = cls.extract_topic(question)
+        if topic is None:
+            return None
+
+        return cls.map_topic_to_field(topic)
