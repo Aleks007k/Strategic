@@ -20,6 +20,7 @@ class StrategicExecutor:
         strategic_synthesis_engine=None,
         input_analysis_engine=None,
         user_context=None,
+        information_manager=None,
     ):
         self.mission_builder = mission_builder
         self.expert_selection_engine = expert_selection_engine
@@ -27,6 +28,7 @@ class StrategicExecutor:
         self.strategic_synthesis_engine = strategic_synthesis_engine
         self.input_analysis_engine = input_analysis_engine
         self.user_context = user_context
+        self.information_manager = information_manager
 
         # TODO: ExpertCatalog is a temporary expert source for wiring purposes.
         # It will later be replaced by a generic expert provider.
@@ -50,6 +52,14 @@ class StrategicExecutor:
                 "goal": analysis_result.get("goal"),
                 "information_gap": information_gap.to_dict() if hasattr(information_gap, "to_dict") else information_gap,
             }
+
+            if self.information_manager is not None:
+                for item in information_gap.missing_information:
+                    question = f"What is your {item}?"
+                    self.information_manager.add_question(question)
+
+                session.workflow_state.data["clarification"] = self.information_manager.get_context()
+
             self.strategic_orchestrator.advance_stage("clarification")
 
         selection = {"selected_experts": []}
