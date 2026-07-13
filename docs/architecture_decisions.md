@@ -134,6 +134,17 @@ Speed and a single-model chat loop are explicitly *not* the design target. Depth
   - external information gathering
   - confidence improvement after additional context
 
+### Legacy Pipeline Deprecation
+
+- **Decision:** The Mission → Council → Expert → Skill → Methodology → Reasoning → Strategic Synthesis architecture becomes the primary execution architecture of Strategic. The current TaskPlanner → StrategicAnalyst → EconomicAnalyst → TechnologyAnalyst → analysis_engine pipeline is considered a legacy compatibility pipeline. No new functionality should be implemented directly inside the legacy pipeline. Future development should target only the new strategic architecture. The legacy pipeline will remain only until the new execution chain reaches feature parity and is fully integrated.
+- **Reason:** Maintaining two parallel execution architectures creates duplicated logic, architectural drift, higher maintenance cost, and increases the risk of inconsistent behavior. A single strategic execution chain is required for long-term evolution of the system.
+- **Future expansion:**
+  - gradual migration of runtime execution
+  - replacement of TaskPlanner with MissionBuilder
+  - replacement of hardcoded analysts with Expert Council
+  - migration from analysis_engine.py synthesis to StrategicSynthesisEngine
+  - removal of the legacy pipeline after complete migration
+
 ---
 
 ## 3. Design Principles
