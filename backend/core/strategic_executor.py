@@ -25,6 +25,7 @@ class StrategicExecutor:
         input_analysis_engine=None,
         user_context=None,
         information_manager=None,
+        analysis_engine=None,
     ):
         self.mission_builder = mission_builder or MissionBuilder()
         self.expert_selection_engine = expert_selection_engine or ExpertSelectionEngine()
@@ -33,6 +34,7 @@ class StrategicExecutor:
         self.input_analysis_engine = input_analysis_engine or InputAnalysisEngine()
         self.user_context = user_context
         self.information_manager = information_manager
+        self.analysis_engine = analysis_engine
 
         # TODO: ExpertCatalog is a temporary expert source for wiring purposes.
         # It will later be replaced by a generic expert provider.
@@ -91,6 +93,14 @@ class StrategicExecutor:
             session = self.reasoning_pipeline.prepare(session)
             self.strategic_orchestrator.advance_stage("agents")
 
+        if self.analysis_engine is not None:
+            analysis_results = [
+                self.analysis_engine.analyze(package)
+                for package in session.results.values()
+            ]
+        else:
+            analysis_results = list(session.results.values())
+
         synthesis = {
             "experts_count": 0,
             "perspectives": [],
@@ -101,7 +111,7 @@ class StrategicExecutor:
             "confidence_summary": None,
         }
         if self.strategic_synthesis_engine is not None:
-            synthesis = self.strategic_synthesis_engine.synthesize(list(session.results.values()))
+            synthesis = self.strategic_synthesis_engine.synthesize(analysis_results)
             self.strategic_orchestrator.advance_stage("consensus")
 
         return {
