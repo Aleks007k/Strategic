@@ -82,6 +82,11 @@ def main():
         if target_list is not None and answered_value not in target_list:
             add_to_field(answered_value)
 
+    preferences_manager = PreferencesManager()
+    updated_preferences = preferences_manager.load_preferences(user_id)
+    updated_preferences.update(memory_context.to_dict())
+    preferences_manager.save_preferences(user_id, updated_preferences)
+
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
     print(final_analysis)
