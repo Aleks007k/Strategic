@@ -47,6 +47,11 @@ class StrategicSynthesisEngine:
         else:
             conflicting_factors = []
 
+        factor_agreement = [
+            {"factor": factor, "agreement_score": count / valid_expert_count}
+            for factor, count in factor_counts.items()
+        ] if valid_expert_count > 0 else []
+
         return {
             "experts_count": len(results),
             "perspectives": perspectives,
@@ -55,4 +60,5 @@ class StrategicSynthesisEngine:
             "combined_risks": combined_risks,
             "combined_opportunities": combined_opportunities,
             "confidence_summary": confidence_summary,
+            "factor_agreement": factor_agreement,
         }
