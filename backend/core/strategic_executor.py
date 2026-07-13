@@ -18,11 +18,13 @@ class StrategicExecutor:
         expert_selection_engine=None,
         reasoning_pipeline=None,
         strategic_synthesis_engine=None,
+        input_analysis_engine=None,
     ):
         self.mission_builder = mission_builder
         self.expert_selection_engine = expert_selection_engine
         self.reasoning_pipeline = reasoning_pipeline
         self.strategic_synthesis_engine = strategic_synthesis_engine
+        self.input_analysis_engine = input_analysis_engine
 
         # TODO: ExpertCatalog is a temporary expert source for wiring purposes.
         # It will later be replaced by a generic expert provider.
@@ -34,7 +36,18 @@ class StrategicExecutor:
     def execute(self, question: str) -> dict:
         session = AnalysisSession()
         session.workflow_state = WorkflowState()
-        self.strategic_orchestrator.start(session)
+        self.strategic_orchestrator.session = session
+
+        if self.input_analysis_engine is not None:
+            analysis_result = self.input_analysis_engine.analyze(question)
+            information_gap = analysis_result.get("information_gap")
+            session.workflow_state.data["input_analysis"] = {
+                "question": analysis_result.get("question"),
+                "context": analysis_result.get("context"),
+                "goal": analysis_result.get("goal"),
+                "information_gap": information_gap.to_dict() if hasattr(information_gap, "to_dict") else information_gap,
+            }
+            self.strategic_orchestrator.advance_stage("clarification")
 
         selection = {"selected_experts": []}
         council = Council()
