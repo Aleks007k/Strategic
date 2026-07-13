@@ -59,8 +59,8 @@ class StrategicExecutor:
 
             if self.information_manager is not None:
                 for item in information_gap.missing_information:
-                    question = f"What is your {item}?"
-                    self.information_manager.add_question(question)
+                    clarification_question = f"What is your {item}?"
+                    self.information_manager.add_question(clarification_question)
 
                 session.workflow_state.data["clarification"] = self.information_manager.get_context()
 
