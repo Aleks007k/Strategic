@@ -13,7 +13,11 @@ from core.user_context import UserContext as MemoryUserContext
 from core.user_profile import UserProfile
 from core.strategic_executor import StrategicExecutor
 from core.information_manager import InformationManager
+from core.reasoning_pipeline import ReasoningPipeline
 from engines.input_analysis_engine import InputAnalysisEngine
+from engines.skill_execution_engine import SkillExecutionEngine
+from engines.methodology_planner import MethodologyPlanner
+from engines.reasoning_builder import ReasoningBuilder
 from preferences.preferences_manager import PreferencesManager
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
@@ -60,7 +64,11 @@ def main():
         relevant_history=stored_memory.get("relevant_history"),
     )
     information_manager = InformationManager()
-    strategic_executor = StrategicExecutor(user_context=memory_context, information_manager=information_manager)
+    strategic_executor = StrategicExecutor(
+        reasoning_pipeline=ReasoningPipeline(SkillExecutionEngine(), MethodologyPlanner(), ReasoningBuilder()),
+        user_context=memory_context,
+        information_manager=information_manager,
+    )
 
     executor_result = strategic_executor.execute(question)
     clarification = executor_result.get("workflow_state", {}).get("data", {}).get("clarification", {})
