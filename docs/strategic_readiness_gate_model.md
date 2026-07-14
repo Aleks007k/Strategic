@@ -76,3 +76,58 @@ Example:
   "needs_review": false,
   "reasons": []
 }
+
+# Readiness Gate Decision Model
+
+## Purpose
+
+Define how the system decides whether a synthesized strategic analysis is ready to be presented.
+
+The readiness gate does not improve the analysis.
+It evaluates whether the existing output is sufficient.
+
+## Input Signals
+
+The readiness gate uses:
+
+- experts_count
+- confidence_summary
+- factor_agreement
+- common_factors
+- conflicting_factors
+
+## Decision Principles
+
+A result should require review when:
+
+- too few expert perspectives exist;
+- confidence information is unavailable;
+- expert agreement is very low;
+- conflicting signals dominate.
+
+## Initial Decision States
+
+Possible states:
+
+### Ready
+
+The analysis has enough structural support for presentation.
+
+### Needs Review
+
+The analysis contains uncertainty or insufficient agreement.
+
+### Insufficient Data
+
+The system cannot evaluate readiness because important signals are missing.
+
+## Output Example
+
+```json
+{
+  "status": "needs_review",
+  "reasons": [
+    "low expert agreement",
+    "missing confidence data"
+  ]
+}
