@@ -65,6 +65,7 @@ class OllamaProvider(BaseProvider):
             "key_factors": data.get("key_factors", []),
             "risks": data.get("risks", []),
             "opportunities": data.get("opportunities", []),
+            "assumptions": data.get("assumptions", []),
             "confidence": data.get("confidence"),
         }
 
@@ -79,7 +80,9 @@ class OllamaProvider(BaseProvider):
             f"Reasoning context (JSON):\n{json.dumps(reasoning_context, indent=2)}\n\n"
             "Before producing your analysis, reason through the mission in this order:\n"
             "1. Understand the mission question, goal, and constraints.\n"
-            "2. Identify the assumptions the analysis depends on.\n"
+            "2. Identify the load-bearing assumptions the analysis depends on. Write each "
+            "assumption as a falsifiable statement, and avoid trivial assumptions that "
+            "would not change the conclusion if they turned out to be false.\n"
             "3. Identify the key factors that most influence the outcome.\n"
             "4. Generate risks, each linked to a key factor.\n"
             "5. Generate opportunities, each linked to a key factor.\n"
@@ -88,5 +91,5 @@ class OllamaProvider(BaseProvider):
             "Respond with a JSON object containing exactly these fields: "
             "summary (string), key_factors (array of strings), "
             "risks (array of strings), opportunities (array of strings), "
-            "confidence (number between 0 and 1)."
+            "assumptions (array of strings), confidence (number between 0 and 1)."
         )
