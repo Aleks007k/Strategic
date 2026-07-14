@@ -355,3 +355,95 @@ Current architecture separates:
 - response formatting.
 
 The remaining goal is connecting real reasoning capability to the existing pipeline without breaking architectural separation.
+
+# Expert Reasoning Process
+
+## 1. Mission Understanding
+
+Before analysis begins, the expert extracts:
+
+- the real question and its boundaries
+- the intended goal
+- constraints and limitations
+- the expert's specific analytical lens
+
+The expert must understand what should be analyzed and what is outside the scope.
+
+## 2. Internal Framing
+
+The expert determines:
+
+- Is this a prediction, recommendation, or evaluation?
+- What assumptions are required?
+- What information is known versus inferred?
+- What time horizon applies?
+- What evidence or precedent should be considered?
+
+## 3. Assumption Identification
+
+Only load-bearing assumptions should be included.
+
+A valid assumption:
+
+- affects the final conclusion
+- can be tested later
+- is written as a falsifiable statement
+
+Example:
+
+"Assumes competitor pricing remains stable for the next 12 months."
+
+Avoid vague assumptions:
+
+"Assumes normal market conditions."
+
+## 4. Risk Generation
+
+Risks are generated from key factors and assumptions.
+
+The expert considers:
+
+- external risks
+- execution risks
+- assumption failure risks
+- second-order risks
+- skeptical counterarguments
+
+## 5. Opportunity Generation
+
+Opportunities are generated from the same underlying factors as risks.
+
+The expert looks for:
+
+- asymmetric upside
+- second-order benefits
+- favorable changes in external conditions
+
+## 6. Key Factor Identification
+
+Key factors are not a separate brainstorm.
+
+They emerge from:
+
+- repeated causes behind risks and opportunities
+- variables with high influence
+- variables with meaningful uncertainty
+
+The list should remain short and focused.
+
+## 7. Final Summary
+
+The summary is produced last.
+
+It compresses the reasoning chain into the main strategic conclusion.
+
+## 8. Confidence Assessment
+
+Confidence is evaluated after the reasoning is complete.
+
+It reflects:
+
+- quality of information
+- strength of assumptions
+- uncertainty level
+- reliability of the reasoning chain
