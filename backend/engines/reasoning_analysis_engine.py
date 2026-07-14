@@ -4,16 +4,30 @@ Reasoning package analysis engine
 """
 
 from core.analysis_result import AnalysisResult
+from knowledge.knowledge_loader import KnowledgeLoader
+
+# Mirrors the domain each legacy agent is hardcoded to load
+# (StrategicAnalyst -> geopolitics, EconomicAnalyst -> economics,
+# TechnologyAnalyst -> technology), applied to the new pipeline's
+# default expert names.
+EXPERT_DOMAIN_MAP = {
+    "Economic Strategist": "economics",
+    "Geopolitical Strategist": "geopolitics",
+    "Technology Strategist": "technology",
+}
 
 
 class AnalysisEngine:
     def __init__(self, llm_provider=None):
         self.llm_provider = llm_provider
+        self.knowledge_loader = KnowledgeLoader()
 
     def analyze(self, reasoning_package) -> dict:
         if self.llm_provider is not None:
+            agent_name = reasoning_package.get("agent")
+
             llm_input = {
-                "agent": reasoning_package.get("agent"),
+                "agent": agent_name,
                 "reasoning_context": {
                     "mission": reasoning_package.get("mission"),
                     "skills": reasoning_package.get("skills"),
@@ -25,6 +39,7 @@ class AnalysisEngine:
                     "time_horizon": reasoning_package.get("time_horizon"),
                     "expert_scope": reasoning_package.get("expert_scope"),
                     "decision_type": reasoning_package.get("decision_type"),
+                    "domain_knowledge": self._load_domain_knowledge(agent_name),
                 },
             }
             result = self.llm_provider.generate_analysis(llm_input)
@@ -48,3 +63,13 @@ class AnalysisEngine:
         output = AnalysisResult().to_dict()
         output["agent"] = agent_name
         return output
+
+    def _load_domain_knowledge(self, agent_name):
+        domain_name = EXPERT_DOMAIN_MAP.get(agent_name)
+        if domain_name is None:
+            return None
+
+        try:
+            return self.knowledge_loader.load_domain(domain_name)
+        except OSError:
+            return None
