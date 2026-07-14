@@ -115,9 +115,11 @@ class StrategicExecutor:
             "needs_review": True,
             "reasons": ["no_experts"],
         }
+        response_text = ""
         if self.strategic_synthesis_engine is not None:
             synthesis = self.strategic_synthesis_engine.synthesize(analysis_results)
             readiness = self.strategic_synthesis_engine.assess_readiness(synthesis)
+            response_text = self.strategic_synthesis_engine.format_response(synthesis)
             self.strategic_orchestrator.advance_stage("consensus")
 
         return {
@@ -127,5 +129,6 @@ class StrategicExecutor:
             "session": session.to_dict(),
             "synthesis": synthesis,
             "readiness": readiness,
+            "response_text": response_text,
             "workflow_state": session.workflow_state.to_dict(),
         }
