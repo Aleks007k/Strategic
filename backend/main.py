@@ -100,7 +100,7 @@ def main():
     updated_preferences.update(memory_context.to_dict())
     preferences_manager.save_preferences(user_id, updated_preferences)
 
-    print("New pipeline output (test)")
+    print("=== Strategic Analysis (primary answer) ===")
     print(executor_result.get("response_text", ""))
 
     readiness = executor_result.get("readiness", {}) or {}
@@ -111,6 +111,8 @@ def main():
     reasons = readiness.get("reasons") or []
     print(f"- Reasons: {', '.join(reasons) if reasons else '-'}")
 
+    print("")
+    print("=== Legacy pipeline output (comparison/debug only) ===")
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
     print(final_analysis)
