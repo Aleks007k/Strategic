@@ -17,6 +17,7 @@ from engines.expert_selection_engine import ExpertSelectionEngine
 from engines.strategic_synthesis_engine import StrategicSynthesisEngine
 from engines.input_analysis_engine import InputAnalysisEngine
 from memory.memory_manager import MemoryManager
+from core.strategic_session_result import StrategicSessionResult
 
 
 class StrategicExecutor:
@@ -144,14 +145,13 @@ class StrategicExecutor:
     @staticmethod
     def _save_strategic_session(result: dict) -> None:
         timestamp = datetime.now()
-        record = {
-            "question": result.get("question"),
-            "mission": result.get("mission"),
-            "selected_experts": result.get("selection", {}).get("selected_experts", []),
-            "synthesis": result.get("synthesis"),
-            "readiness": result.get("readiness"),
-            "response_text": result.get("response_text"),
-            "timestamp": timestamp.isoformat(),
-        }
-        filename = f"strategic_session_{timestamp.strftime('%Y%m%d_%H%M%S')}.json"
-        MemoryManager().save_memory("strategic_sessions", filename, json.dumps(record, indent=2))
+        session_id = f"strategic_session_{timestamp.strftime('%Y%m%d_%H%M%S')}"
+
+        session_result = StrategicSessionResult.from_execute_result(
+            result,
+            timestamp=timestamp.isoformat(),
+            session_id=session_id,
+        )
+
+        filename = f"{session_id}.json"
+        MemoryManager().save_memory("strategic_sessions", filename, json.dumps(session_result.to_dict(), indent=2))
