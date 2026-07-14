@@ -3,30 +3,40 @@ Strategic AI Core Backend
 Strategic workflow definition
 """
 
-PIPELINE = [
+# Stages the new pipeline actually executes today.
+IMPLEMENTED_STAGES = [
     "clarification",
     "planning",
     "agents",
+    "consensus",
+    "response",
+]
+
+# Stages named in the strategic reasoning model but not yet implemented
+# by any component reachable from StrategicExecutor. Not valid advance_stage()
+# targets until real implementations exist.
+PLANNED_STAGES = [
     "arguments",
     "review",
     "debate",
-    "consensus",
     "decision",
     "probability",
-    "response",
 ]
 
 
 class StrategicWorkflow:
     def get_pipeline(self) -> list:
-        return list(PIPELINE)
+        return list(IMPLEMENTED_STAGES)
+
+    def get_planned_stages(self) -> list:
+        return list(PLANNED_STAGES)
 
     def next_step(self, current_step: str):
-        if current_step not in PIPELINE:
+        if current_step not in IMPLEMENTED_STAGES:
             return None
 
-        index = PIPELINE.index(current_step)
-        if index + 1 >= len(PIPELINE):
+        index = IMPLEMENTED_STAGES.index(current_step)
+        if index + 1 >= len(IMPLEMENTED_STAGES):
             return None
 
-        return PIPELINE[index + 1]
+        return IMPLEMENTED_STAGES[index + 1]
