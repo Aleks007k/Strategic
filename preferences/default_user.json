@@ -6,5 +6,18 @@
     "geopolitics",
     "economics",
     "technology"
-  ]
+  ],
+  "facts": [
+    "Double revenue"
+  ],
+  "preferences": [
+    "Low",
+    "Growth"
+  ],
+  "constraints": [
+    "50000 EUR",
+    "6 months"
+  ],
+  "previous_decisions": [],
+  "relevant_history": []
 }

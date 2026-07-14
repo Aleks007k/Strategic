@@ -19,6 +19,7 @@ from engines.skill_execution_engine import SkillExecutionEngine
 from engines.methodology_planner import MethodologyPlanner
 from engines.reasoning_builder import ReasoningBuilder
 from engines.reasoning_analysis_engine import AnalysisEngine
+from engines.strategic_synthesis_engine import StrategicSynthesisEngine
 from preferences.preferences_manager import PreferencesManager
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
@@ -96,6 +97,9 @@ def main():
     updated_preferences = preferences_manager.load_preferences(user_id)
     updated_preferences.update(memory_context.to_dict())
     preferences_manager.save_preferences(user_id, updated_preferences)
+
+    print("New pipeline output (test)")
+    print(StrategicSynthesisEngine().format_response(executor_result.get("synthesis", {})))
 
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
