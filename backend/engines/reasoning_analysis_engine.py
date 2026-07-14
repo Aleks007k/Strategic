@@ -20,6 +20,11 @@ class AnalysisEngine:
                     "methodologies": reasoning_package.get("methodologies"),
                     "analysis_steps": reasoning_package.get("analysis_steps"),
                     "question": reasoning_package.get("mission", {}).get("question"),
+                    "goals": reasoning_package.get("mission", {}).get("goal"),
+                    "constraints": reasoning_package.get("mission", {}).get("constraints"),
+                    "time_horizon": reasoning_package.get("time_horizon"),
+                    "expert_scope": reasoning_package.get("expert_scope"),
+                    "decision_type": reasoning_package.get("decision_type"),
                 },
             }
             result = self.llm_provider.generate_analysis(llm_input)
