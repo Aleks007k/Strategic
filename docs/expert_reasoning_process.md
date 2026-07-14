@@ -184,3 +184,36 @@ Reasoning:
 - generating opportunities;
 - identifying key factors;
 - writing conclusions.
+
+# Expert Analysis Output Model
+
+## Purpose
+
+Each strategic expert must transform mission context into a structured analysis output.
+
+The output is not a list of opinions. It is a traceable reasoning result connecting:
+mission → assumptions → key factors → risks/opportunities → conclusion.
+
+## Required Output Fields
+
+Each expert analysis contains:
+
+- agent
+- summary
+- key_factors
+- risks
+- opportunities
+- assumptions
+- confidence
+
+## Output Principles
+
+Summary is written last and represents the conclusion of the reasoning process.
+
+Risks and opportunities must be connected to key factors, not generated as independent lists.
+
+Assumptions must represent load-bearing beliefs that could change the conclusion if proven false.
+
+Key factors represent uncertain variables with high influence on the outcome.
+
+Confidence reflects the strength of the reasoning chain, not only the amount of information available.
