@@ -17,6 +17,7 @@ from engines.expert_selection_engine import ExpertSelectionEngine
 from engines.strategic_synthesis_engine import StrategicSynthesisEngine
 from engines.input_analysis_engine import InputAnalysisEngine
 from engines.strategic_review_engine import StrategicReviewEngine
+from engines.strategic_response_localizer import StrategicResponseLocalizer
 from memory.memory_manager import MemoryManager
 from core.strategic_session_result import StrategicSessionResult
 
@@ -32,6 +33,7 @@ class StrategicExecutor:
         user_context=None,
         information_manager=None,
         analysis_engine=None,
+        response_preferences=None,
     ):
         self.mission_builder = mission_builder or MissionBuilder()
         self.expert_selection_engine = expert_selection_engine or ExpertSelectionEngine()
@@ -41,6 +43,7 @@ class StrategicExecutor:
         self.user_context = user_context
         self.information_manager = information_manager
         self.analysis_engine = analysis_engine
+        self.response_preferences = response_preferences
 
         # TODO: ExpertCatalog is a temporary expert source for wiring purposes.
         # It will later be replaced by a generic expert provider.
@@ -49,6 +52,7 @@ class StrategicExecutor:
 
         self.strategic_orchestrator = StrategicOrchestrator(workflow=StrategicWorkflow())
         self.strategic_review_engine = StrategicReviewEngine()
+        self.response_localizer = StrategicResponseLocalizer()
 
     def execute(self, question: str) -> dict:
         session = AnalysisSession()
@@ -127,11 +131,13 @@ class StrategicExecutor:
             "review_status": "needs_review",
             "review_reasons": ["insufficient expert coverage"],
         }
+        localized_response_text = ""
         if self.strategic_synthesis_engine is not None:
             synthesis = self.strategic_synthesis_engine.synthesize(analysis_results)
             readiness = self.strategic_synthesis_engine.assess_readiness(synthesis)
             response_text = self.strategic_synthesis_engine.format_response(synthesis)
             review = self.strategic_review_engine.review(synthesis, readiness)
+            localized_response_text = self.response_localizer.localize(synthesis, self.response_preferences)
             self.strategic_orchestrator.advance_stage("consensus")
 
         result = {
@@ -143,6 +149,7 @@ class StrategicExecutor:
             "readiness": readiness,
             "response_text": response_text,
             "review": review,
+            "localized_response_text": localized_response_text,
             "workflow_state": session.workflow_state.to_dict(),
         }
 

@@ -1,5 +1,10 @@
 {
   "welcome_message": "Добро пожаловать в Strategic - ваш персональный ассистент стратегической аналитики.",
   "language_prompt": "Выберите язык (ru/en) [по умолчанию: ru]: ",
-  "question_prompt": "Введите ваш вопрос: "
+  "question_prompt": "Введите ваш вопрос: ",
+  "response_experts": "Эксперты",
+  "response_perspectives": "Точки зрения",
+  "response_risks": "Риски",
+  "response_opportunities": "Возможности",
+  "response_confidence": "Уверенность"
 }

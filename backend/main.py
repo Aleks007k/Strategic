@@ -65,6 +65,9 @@ def main():
         previous_decisions=stored_memory.get("previous_decisions"),
         relevant_history=stored_memory.get("relevant_history"),
     )
+    response_preferences = dict(stored_memory)
+    response_preferences["language"] = language
+
     information_manager = InformationManager()
     strategic_executor = StrategicExecutor(
         reasoning_pipeline=ReasoningPipeline(SkillExecutionEngine(), MethodologyPlanner(), ReasoningBuilder()),
@@ -73,6 +76,7 @@ def main():
         ),
         user_context=memory_context,
         information_manager=information_manager,
+        response_preferences=response_preferences,
     )
 
     executor_result = strategic_executor.execute(question)
@@ -110,6 +114,10 @@ def main():
     print(f"- Needs review: {readiness.get('needs_review')}")
     reasons = readiness.get("reasons") or []
     print(f"- Reasons: {', '.join(reasons) if reasons else '-'}")
+
+    print("")
+    print("=== Strategic Analysis (localized, preference-aware) ===")
+    print(executor_result.get("localized_response_text", ""))
 
     print("")
     print("=== Legacy pipeline output (comparison/debug only) ===")

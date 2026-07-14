@@ -1,5 +1,10 @@
 {
   "welcome_message": "Welcome to Strategic - your personal strategic intelligence assistant.",
   "language_prompt": "Choose language (ru/en) [default: ru]: ",
-  "question_prompt": "Enter your question: "
+  "question_prompt": "Enter your question: ",
+  "response_experts": "Experts",
+  "response_perspectives": "Perspectives",
+  "response_risks": "Risks",
+  "response_opportunities": "Opportunities",
+  "response_confidence": "Confidence"
 }
