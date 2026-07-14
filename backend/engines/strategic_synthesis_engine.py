@@ -114,6 +114,41 @@ class StrategicSynthesisEngine:
 
         return "\n".join(lines)
 
+    def assess_readiness(self, synthesis: dict) -> dict:
+        data = synthesis if isinstance(synthesis, dict) else {}
+
+        experts_count = data.get("experts_count") or 0
+        confidence_summary = data.get("confidence_summary")
+        conflicting_factors = data.get("conflicting_factors") or []
+        factor_agreement = data.get("factor_agreement") or []
+
+        reasons = []
+
+        if experts_count == 0:
+            reasons.append("no_experts")
+
+        if confidence_summary is None:
+            reasons.append("missing_confidence")
+
+        if conflicting_factors:
+            reasons.append("conflicting_factors_present")
+
+        scores = [
+            entry.get("agreement_score")
+            for entry in factor_agreement
+            if isinstance(entry, dict)
+            and isinstance(entry.get("agreement_score"), (int, float))
+            and not isinstance(entry.get("agreement_score"), bool)
+        ]
+        if scores and (sum(scores) / len(scores)) < 0.5:
+            reasons.append("low_factor_agreement")
+
+        return {
+            "ready": not reasons,
+            "needs_review": bool(reasons),
+            "reasons": reasons,
+        }
+
     @staticmethod
     def _format_items(items) -> list:
         valid_items = [item for item in (items or []) if item is not None]

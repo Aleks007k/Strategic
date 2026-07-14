@@ -110,8 +110,14 @@ class StrategicExecutor:
             "combined_opportunities": [],
             "confidence_summary": None,
         }
+        readiness = {
+            "ready": False,
+            "needs_review": True,
+            "reasons": ["no_experts"],
+        }
         if self.strategic_synthesis_engine is not None:
             synthesis = self.strategic_synthesis_engine.synthesize(analysis_results)
+            readiness = self.strategic_synthesis_engine.assess_readiness(synthesis)
             self.strategic_orchestrator.advance_stage("consensus")
 
         return {
@@ -120,5 +126,6 @@ class StrategicExecutor:
             "selection": selection,
             "session": session.to_dict(),
             "synthesis": synthesis,
+            "readiness": readiness,
             "workflow_state": session.workflow_state.to_dict(),
         }

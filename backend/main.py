@@ -104,6 +104,14 @@ def main():
     print("New pipeline output (test)")
     print(StrategicSynthesisEngine().format_response(executor_result.get("synthesis", {})))
 
+    readiness = executor_result.get("readiness", {}) or {}
+    print("")
+    print("Readiness:")
+    print(f"- Ready: {readiness.get('ready')}")
+    print(f"- Needs review: {readiness.get('needs_review')}")
+    reasons = readiness.get("reasons") or []
+    print(f"- Reasons: {', '.join(reasons) if reasons else '-'}")
+
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
     print(final_analysis)
