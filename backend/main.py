@@ -19,7 +19,6 @@ from engines.skill_execution_engine import SkillExecutionEngine
 from engines.methodology_planner import MethodologyPlanner
 from engines.reasoning_builder import ReasoningBuilder
 from engines.reasoning_analysis_engine import AnalysisEngine
-from engines.strategic_synthesis_engine import StrategicSynthesisEngine
 from engines.providers.mock_provider import MockProvider
 from preferences.preferences_manager import PreferencesManager
 from agents.strategic_analyst import StrategicAnalyst
@@ -102,7 +101,7 @@ def main():
     preferences_manager.save_preferences(user_id, updated_preferences)
 
     print("New pipeline output (test)")
-    print(StrategicSynthesisEngine().format_response(executor_result.get("synthesis", {})))
+    print(executor_result.get("response_text", ""))
 
     readiness = executor_result.get("readiness", {}) or {}
     print("")
