@@ -3,6 +3,9 @@ Strategic AI Core Backend
 Strategic executor
 """
 
+import json
+from datetime import datetime
+
 from core.analysis_session import AnalysisSession
 from core.expert_catalog import ExpertCatalog
 from core.council import Council
@@ -13,6 +16,7 @@ from core.mission_builder import MissionBuilder
 from engines.expert_selection_engine import ExpertSelectionEngine
 from engines.strategic_synthesis_engine import StrategicSynthesisEngine
 from engines.input_analysis_engine import InputAnalysisEngine
+from memory.memory_manager import MemoryManager
 
 
 class StrategicExecutor:
@@ -122,7 +126,7 @@ class StrategicExecutor:
             response_text = self.strategic_synthesis_engine.format_response(synthesis)
             self.strategic_orchestrator.advance_stage("consensus")
 
-        return {
+        result = {
             "question": question,
             "mission": mission.to_dict() if hasattr(mission, "to_dict") else mission,
             "selection": selection,
@@ -132,3 +136,22 @@ class StrategicExecutor:
             "response_text": response_text,
             "workflow_state": session.workflow_state.to_dict(),
         }
+
+        self._save_strategic_session(result)
+
+        return result
+
+    @staticmethod
+    def _save_strategic_session(result: dict) -> None:
+        timestamp = datetime.now()
+        record = {
+            "question": result.get("question"),
+            "mission": result.get("mission"),
+            "selected_experts": result.get("selection", {}).get("selected_experts", []),
+            "synthesis": result.get("synthesis"),
+            "readiness": result.get("readiness"),
+            "response_text": result.get("response_text"),
+            "timestamp": timestamp.isoformat(),
+        }
+        filename = f"strategic_session_{timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+        MemoryManager().save_memory("strategic_sessions", filename, json.dumps(record, indent=2))
