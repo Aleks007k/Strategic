@@ -7,7 +7,7 @@ from pathlib import Path
 
 MEMORY_DIR = Path(__file__).resolve().parent.parent.parent / "memory"
 
-VALID_CATEGORIES = {"conversations", "decisions", "insights"}
+VALID_CATEGORIES = {"conversations", "decisions", "insights", "strategic_sessions"}
 
 
 class MemoryManager:

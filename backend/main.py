@@ -3,6 +3,7 @@ Strategic AI Core Backend
 Main entry point
 """
 
+import json
 from datetime import datetime
 
 from config import config
@@ -20,6 +21,7 @@ from engines.methodology_planner import MethodologyPlanner
 from engines.reasoning_builder import ReasoningBuilder
 from engines.reasoning_analysis_engine import AnalysisEngine
 from engines.providers.mock_provider import MockProvider
+from memory.memory_manager import MemoryManager
 from preferences.preferences_manager import PreferencesManager
 from agents.strategic_analyst import StrategicAnalyst
 from agents.economic_analyst import EconomicAnalyst
@@ -110,6 +112,19 @@ def main():
     print(f"- Needs review: {readiness.get('needs_review')}")
     reasons = readiness.get("reasons") or []
     print(f"- Reasons: {', '.join(reasons) if reasons else '-'}")
+
+    session_timestamp = datetime.now()
+    strategic_session_record = {
+        "question": executor_result.get("question"),
+        "mission": executor_result.get("mission"),
+        "selected_experts": executor_result.get("selection", {}).get("selected_experts", []),
+        "synthesis": executor_result.get("synthesis"),
+        "readiness": executor_result.get("readiness"),
+        "response_text": executor_result.get("response_text"),
+        "timestamp": session_timestamp.isoformat(),
+    }
+    session_filename = f"strategic_session_{session_timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+    MemoryManager().save_memory("strategic_sessions", session_filename, json.dumps(strategic_session_record, indent=2))
 
     session = StrategicSession(orchestrator)
     final_analysis = session.run(question, context=context)
