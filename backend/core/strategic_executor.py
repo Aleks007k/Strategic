@@ -16,6 +16,7 @@ from core.mission_builder import MissionBuilder
 from engines.expert_selection_engine import ExpertSelectionEngine
 from engines.strategic_synthesis_engine import StrategicSynthesisEngine
 from engines.input_analysis_engine import InputAnalysisEngine
+from engines.strategic_review_engine import StrategicReviewEngine
 from memory.memory_manager import MemoryManager
 from core.strategic_session_result import StrategicSessionResult
 
@@ -47,6 +48,7 @@ class StrategicExecutor:
         self.expert_catalog.load_default_experts()
 
         self.strategic_orchestrator = StrategicOrchestrator(workflow=StrategicWorkflow())
+        self.strategic_review_engine = StrategicReviewEngine()
 
     def execute(self, question: str) -> dict:
         session = AnalysisSession()
@@ -121,10 +123,15 @@ class StrategicExecutor:
             "reasons": ["no_experts"],
         }
         response_text = ""
+        review = {
+            "review_status": "needs_review",
+            "review_reasons": ["insufficient expert coverage"],
+        }
         if self.strategic_synthesis_engine is not None:
             synthesis = self.strategic_synthesis_engine.synthesize(analysis_results)
             readiness = self.strategic_synthesis_engine.assess_readiness(synthesis)
             response_text = self.strategic_synthesis_engine.format_response(synthesis)
+            review = self.strategic_review_engine.review(synthesis, readiness)
             self.strategic_orchestrator.advance_stage("consensus")
 
         result = {
@@ -135,6 +142,7 @@ class StrategicExecutor:
             "synthesis": synthesis,
             "readiness": readiness,
             "response_text": response_text,
+            "review": review,
             "workflow_state": session.workflow_state.to_dict(),
         }
 
