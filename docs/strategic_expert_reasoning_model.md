@@ -447,3 +447,44 @@ It reflects:
 - strength of assumptions
 - uncertainty level
 - reliability of the reasoning chain
+
+# Deterministic vs Reasoning Responsibilities
+
+## Deterministic Operations
+
+These operations can be handled without AI reasoning:
+
+- extracting mission fields
+- reading constraints
+- counting expert agreement
+- aggregating expert outputs
+- calculating averages
+- validating data structure
+
+These operations should remain predictable and reproducible.
+
+## Reasoning Operations
+
+These operations require expert-level reasoning:
+
+- identifying important assumptions
+- generating mission-specific risks
+- generating opportunities
+- selecting true key factors
+- writing strategic conclusions
+- evaluating confidence quality
+
+These operations require understanding relationships, causality, and uncertainty.
+
+## Design Principle
+
+The system should not replace reasoning with deterministic rules.
+
+Deterministic components should organize, validate, and compare outputs.
+
+Reasoning components should create strategic understanding.
+
+The architecture separates:
+- intelligence generation
+- information aggregation
+- decision support
