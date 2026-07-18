@@ -96,6 +96,12 @@ class AnalysisEngine:
 
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(hypotheses)
 
+            # Internal scaffold for the future Causal Reasoning Layer (see
+            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic; not yet
+            # consulted by evidence/ranking, not sent to the provider, and
+            # not exposed in the returned result.
+            causal_graphs = [self._build_causal_graph(hypothesis) for hypothesis in hypotheses]
+
             llm_input = {
                 "agent": agent_name,
                 "reasoning_context": {
@@ -189,6 +195,27 @@ class AnalysisEngine:
         dominant = ranked[0][1] if len(ranked) >= 1 else None
         closest_rival = ranked[1][1] if len(ranked) >= 2 else None
         return dominant, closest_rival
+
+    @staticmethod
+    def _build_causal_graph(hypothesis) -> dict:
+        statement = hypothesis.get("statement")
+        supporting = hypothesis.get("supporting_evidence") or []
+        contradicting = hypothesis.get("contradicting_evidence") or []
+
+        nodes = [statement]
+        nodes.extend(supporting)
+        nodes.extend(contradicting)
+
+        edges = [
+            {"from": evidence, "to": statement, "relation": "supports"}
+            for evidence in supporting
+        ]
+        edges.extend(
+            {"from": evidence, "to": statement, "relation": "contradicts"}
+            for evidence in contradicting
+        )
+
+        return {"nodes": nodes, "edges": edges}
 
     @staticmethod
     def _extract_keywords(text) -> list:
