@@ -267,7 +267,19 @@ class AnalysisEngine:
         if marks.get(this_key) != "C":
             return False
 
-        return any(mark != "C" for key, mark in marks.items() if key != this_key)
+        # Competitive hypothesis set: constraint- and skill-derived hypotheses
+        # only. Index "0" is always the null hypothesis (see hypothesis
+        # ordering in analyze()) and is excluded so its N/A mark - which is
+        # structural (different evidence vocabulary), not a real competing
+        # explanation - can't manufacture diagnosticity on its own.
+        null_hypothesis_index = "0"
+        excluded_keys = {this_key, null_hypothesis_index}
+
+        return any(
+            mark != "C"
+            for key, mark in marks.items()
+            if key not in excluded_keys
+        )
 
     @staticmethod
     def _score_hypothesis(hypothesis, shared_evidence_nodes=None) -> float:
