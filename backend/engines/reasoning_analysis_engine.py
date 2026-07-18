@@ -246,6 +246,12 @@ class AnalysisEngine:
             #  "supporting_hypotheses": [], "blocking_hypotheses": []}
             decision_evaluations = []
 
+            # Empty registry scaffold for future decision actions. Future
+            # action object shape (never instantiated here):
+            # {"id": None, "name": None, "description": None, "category": None,
+            #  "required_resources": [], "risks": [], "expected_outcomes": []}
+            decision_action_registry = []
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
