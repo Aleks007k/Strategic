@@ -196,6 +196,24 @@ class AnalysisEngine:
                 if len(occurrences) >= 2
             }
 
+            # Internal scaffold: deterministic evidence quality weighting based
+            # on provenance (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Not
+            # exposed, not sent to the provider, and not consulted by
+            # ranking/status/scoring/assumptions.
+            provenance_weights = {"domain_knowledge": 2, "question": 1}
+
+            evidence_quality = {}
+            for hypothesis_index in range(len(hypotheses)):
+                for evidence, provenance in provenance_maps[hypothesis_index].items():
+                    weight = provenance_weights.get(provenance, 0)
+                    current = evidence_quality.get(evidence)
+                    if current is None or weight > current["weight"]:
+                        evidence_quality[evidence] = {"provenance": provenance, "weight": weight}
+
+            for evidence in all_evidence:
+                if evidence not in evidence_quality:
+                    evidence_quality[evidence] = {"provenance": None, "weight": 0}
+
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(
                 hypotheses, shared_evidence_nodes=shared_evidence_nodes
             )
