@@ -232,6 +232,12 @@ class AnalysisEngine:
             # {"hypothesis_index": None, "action_id": None, "relationship": None}
             decision_action_links = []
 
+            # Empty scaffold for future action evaluation criteria. Future
+            # criteria object shape (never instantiated here):
+            # {"name": None, "description": None, "weight": None,
+            #  "affected_by_hypotheses": []}
+            decision_criteria = []
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
