@@ -71,9 +71,17 @@ class AnalysisEngine:
             ]
             allow_contradiction_flags = [False]
             sources = [None]
+            # Evidence provenance ("domain_knowledge"/"question"), tracked
+            # alongside the evidence itself as it's generated - not inferred
+            # later from string content. Index-aligned with hypotheses; the
+            # null hypothesis's evidence isn't domain/question-derived, so it
+            # has no provenance entries.
+            provenance_maps = [{}]
 
             for constraint in constraints:
-                constraint_supporting = self._find_supporting_evidence(constraint, question, domain_knowledge)
+                constraint_supporting, constraint_provenance = self._find_supporting_evidence(
+                    constraint, question, domain_knowledge
+                )
                 constraint_contradicting = []
                 hypotheses.append({
                     "statement": (
@@ -86,9 +94,12 @@ class AnalysisEngine:
                 })
                 allow_contradiction_flags.append(True)
                 sources.append(constraint)
+                provenance_maps.append(constraint_provenance)
 
             for skill in skills_list:
-                skill_supporting = self._find_supporting_evidence(skill, question, domain_knowledge)
+                skill_supporting, skill_provenance = self._find_supporting_evidence(
+                    skill, question, domain_knowledge
+                )
                 skill_contradicting = []
                 hypotheses.append({
                     "statement": (
@@ -101,6 +112,7 @@ class AnalysisEngine:
                 })
                 allow_contradiction_flags.append(True)
                 sources.append(skill)
+                provenance_maps.append(skill_provenance)
 
             # Internal scaffold: deterministic ACH-style diagnosticity matrix
             # (see docs/STRATEGIC_HYPOTHESIS_LAYER.md §5). Exact string equality
@@ -152,7 +164,9 @@ class AnalysisEngine:
             # consulted by evidence/ranking, not sent to the provider, and
             # not exposed in the returned result.
             causal_graphs = [
-                self._build_causal_graph(hypothesis, source=sources[index])
+                self._build_causal_graph(
+                    hypothesis, source=sources[index], evidence_provenance=provenance_maps[index]
+                )
                 for index, hypothesis in enumerate(hypotheses)
             ]
 
@@ -341,12 +355,13 @@ class AnalysisEngine:
         return dominant, closest_rival
 
     @staticmethod
-    def _build_causal_graph(hypothesis, source=None) -> dict:
+    def _build_causal_graph(hypothesis, source=None, evidence_provenance=None) -> dict:
         statement = hypothesis.get("statement")
         status = hypothesis.get("status")
         hypothesis_type = hypothesis.get("type")
         supporting = hypothesis.get("supporting_evidence") or []
         contradicting = hypothesis.get("contradicting_evidence") or []
+        provenance_lookup = evidence_provenance or {}
 
         nodes = [statement]
         nodes.extend(supporting)
@@ -360,6 +375,16 @@ class AnalysisEngine:
             {"from": evidence, "to": statement, "relation": "contradicts"}
             for evidence in contradicting
         )
+
+        # Provenance is looked up from the map generated alongside the
+        # evidence itself (see _find_supporting_evidence), never inferred
+        # from the evidence string's text. Evidence with no known provenance
+        # (e.g. the null hypothesis's presence-based evidence) gets none.
+        for evidence in supporting + contradicting:
+            provenance = provenance_lookup.get(evidence)
+            if provenance is not None:
+                nodes.append(provenance)
+                edges.append({"from": evidence, "to": provenance, "relation": "has_provenance"})
 
         if source is not None:
             nodes.append(source)
@@ -383,15 +408,20 @@ class AnalysisEngine:
         return list(dict.fromkeys(keywords))
 
     @classmethod
-    def _find_supporting_evidence(cls, subject, question, domain_knowledge) -> list:
+    def _find_supporting_evidence(cls, subject, question, domain_knowledge):
         domain_text = domain_knowledge.lower() if isinstance(domain_knowledge, str) else ""
         question_text = question.lower() if isinstance(question, str) else ""
 
         evidence = []
+        provenance = {}
         for keyword in cls._extract_keywords(subject):
             if domain_text and keyword in domain_text:
-                evidence.append(f"Domain knowledge references '{keyword}'.")
+                item = f"Domain knowledge references '{keyword}'."
+                evidence.append(item)
+                provenance[item] = "domain_knowledge"
             if question_text and keyword in question_text:
-                evidence.append(f"The question directly references '{keyword}'.")
+                item = f"The question directly references '{keyword}'."
+                evidence.append(item)
+                provenance[item] = "question"
 
-        return evidence
+        return evidence, provenance
