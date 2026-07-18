@@ -202,6 +202,7 @@ class AnalysisEngine:
     @staticmethod
     def _build_causal_graph(hypothesis, source=None) -> dict:
         statement = hypothesis.get("statement")
+        status = hypothesis.get("status")
         supporting = hypothesis.get("supporting_evidence") or []
         contradicting = hypothesis.get("contradicting_evidence") or []
 
@@ -221,6 +222,9 @@ class AnalysisEngine:
         if source is not None:
             nodes.append(source)
             edges.append({"from": source, "to": statement, "relation": "derives"})
+
+        nodes.append(status)
+        edges.append({"from": statement, "to": status, "relation": "has_status"})
 
         return {"nodes": nodes, "edges": edges}
 
