@@ -26,6 +26,19 @@ class AnalysisEngine:
         if self.llm_provider is not None:
             agent_name = reasoning_package.get("agent")
 
+            # Internal scaffold for the future Hypothesis Layer (see
+            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic and empty
+            # by default; not yet populated, not sent to the provider, and
+            # not exposed in the returned result.
+            hypotheses = [
+                {
+                    "statement": "",
+                    "status": "unresolved",
+                    "supporting_evidence": [],
+                    "contradicting_evidence": [],
+                }
+            ]
+
             llm_input = {
                 "agent": agent_name,
                 "reasoning_context": {
