@@ -208,6 +208,9 @@ class AnalysisEngine:
                     # strings/IDs are inserted regardless of status.
                     "impact_state": "unresolved",
                     "related_actions": [],
+                    # Scaffold only: not derived from statement/evidence/
+                    # skills/constraints/status.
+                    "affected_decision_areas": [],
                 }
                 for index, hypothesis in enumerate(hypotheses)
             ]
