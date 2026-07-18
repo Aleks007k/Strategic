@@ -127,22 +127,24 @@ class AnalysisEngine:
                         marks[str(hypothesis_index)] = "N/A"
                 diagnosticity_matrix[evidence] = marks
 
-            # Derived from each hypothesis's explicit "type" field rather than
-            # assuming index 0 is null - the type field is the single source
-            # of truth for hypothesis origin.
-            null_hypothesis_indices = {
-                str(index) for index, hypothesis in enumerate(hypotheses)
-                if hypothesis.get("type") == "null"
-            }
+            # Derived from each hypothesis's explicit "type" field: competitors
+            # are only hypotheses that share the same type (skill vs. skill,
+            # constraint vs. constraint) - the type field is the single source
+            # of truth for hypothesis origin, not index position.
+            indices_by_type = {}
+            for index, hypothesis in enumerate(hypotheses):
+                indices_by_type.setdefault(hypothesis.get("type"), set()).add(str(index))
 
             for hypothesis_index, hypothesis in enumerate(hypotheses):
+                hypothesis_type = hypothesis.get("type")
                 hypothesis["status"] = self._evaluate_status(
                     hypothesis["supporting_evidence"],
                     hypothesis["contradicting_evidence"],
                     allow_contradiction_to_reject=allow_contradiction_flags[hypothesis_index],
                     diagnosticity_matrix=diagnosticity_matrix,
                     hypothesis_index=hypothesis_index,
-                    excluded_indices=null_hypothesis_indices,
+                    hypothesis_type=hypothesis_type,
+                    competitor_indices=indices_by_type.get(hypothesis_type),
                 )
 
             # Internal scaffold for the future Causal Reasoning Layer (see
@@ -252,16 +254,20 @@ class AnalysisEngine:
         allow_contradiction_to_reject=True,
         diagnosticity_matrix=None,
         hypothesis_index=None,
-        excluded_indices=None,
+        hypothesis_type=None,
+        competitor_indices=None,
     ) -> str:
         has_contradiction = bool(contradicting_evidence)
 
-        if diagnosticity_matrix is None:
+        # The null hypothesis has no real competing alternative of its own
+        # type, so it never uses diagnostic support logic - it falls back to
+        # plain evidence presence, exactly as when no matrix is supplied.
+        if diagnosticity_matrix is None or hypothesis_type == "null":
             has_support = bool(supporting_evidence)
         else:
             has_support = any(
                 cls._is_diagnostic_support(
-                    evidence, hypothesis_index, diagnosticity_matrix, excluded_indices=excluded_indices
+                    evidence, hypothesis_index, diagnosticity_matrix, competitor_indices=competitor_indices
                 )
                 for evidence in supporting_evidence
             )
@@ -273,7 +279,7 @@ class AnalysisEngine:
         return "unresolved"
 
     @staticmethod
-    def _is_diagnostic_support(evidence, hypothesis_index, diagnosticity_matrix, excluded_indices=None) -> bool:
+    def _is_diagnostic_support(evidence, hypothesis_index, diagnosticity_matrix, competitor_indices=None) -> bool:
         marks = diagnosticity_matrix.get(evidence)
         if not marks:
             return False
@@ -282,20 +288,18 @@ class AnalysisEngine:
         if marks.get(this_key) != "C":
             return False
 
-        # Competitive hypothesis set: constraint- and skill-derived hypotheses
-        # only. Non-competing hypotheses (e.g. the null hypothesis, identified
-        # by type rather than index - see excluded_indices in analyze()) are
-        # excluded so their N/A mark - which is structural (different evidence
-        # vocabulary), not a real competing explanation - can't manufacture
-        # diagnosticity on its own.
-        excluded_keys = {this_key}
-        if excluded_indices:
-            excluded_keys |= set(excluded_indices)
+        # Competitors are only hypotheses of the same type (skill vs. skill,
+        # constraint vs. constraint - see indices_by_type in analyze()), so
+        # evidence shared with a different-type hypothesis can no longer
+        # manufacture diagnosticity: only a genuine same-type rival showing
+        # "N/A" or "I" can make this evidence discriminate anything.
+        if not competitor_indices:
+            return False
 
         return any(
             mark != "C"
             for key, mark in marks.items()
-            if key not in excluded_keys
+            if key in competitor_indices and key != this_key
         )
 
     @staticmethod
