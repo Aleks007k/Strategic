@@ -128,7 +128,9 @@ class AnalysisEngine:
                 if len(occurrences) >= 2
             }
 
-            dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(hypotheses)
+            dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(
+                hypotheses, shared_evidence_nodes=shared_evidence_nodes
+            )
 
             llm_input = {
                 "agent": agent_name,
@@ -203,22 +205,38 @@ class AnalysisEngine:
         return "unresolved"
 
     @staticmethod
-    def _score_hypothesis(hypothesis) -> float:
+    def _score_hypothesis(hypothesis, shared_evidence_nodes=None) -> float:
         status = hypothesis.get("status")
         supporting = hypothesis.get("supporting_evidence") or []
         contradicting = hypothesis.get("contradicting_evidence") or []
 
         status_weight = 1 if status == "surviving" else 0
-        return status_weight + len(supporting) - len(contradicting)
+
+        if shared_evidence_nodes is None:
+            evidence_score = len(supporting) - len(contradicting)
+        else:
+            unique_supporting = [
+                evidence for evidence in supporting
+                if evidence not in shared_evidence_nodes
+            ]
+            evidence_score = len(unique_supporting) - len(contradicting)
+
+        return status_weight + evidence_score
 
     @classmethod
-    def _rank_hypotheses(cls, hypotheses):
+    def _rank_hypotheses(cls, hypotheses, shared_evidence_nodes=None):
         candidates = [
             (index, hypothesis)
             for index, hypothesis in enumerate(hypotheses)
             if hypothesis.get("status") != "rejected"
         ]
-        ranked = sorted(candidates, key=lambda pair: (-cls._score_hypothesis(pair[1]), pair[0]))
+        ranked = sorted(
+            candidates,
+            key=lambda pair: (
+                -cls._score_hypothesis(pair[1], shared_evidence_nodes=shared_evidence_nodes),
+                pair[0],
+            ),
+        )
 
         dominant = ranked[0][1] if len(ranked) >= 1 else None
         closest_rival = ranked[1][1] if len(ranked) >= 2 else None
