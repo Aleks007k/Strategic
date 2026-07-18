@@ -64,6 +64,7 @@ class AnalysisEngine:
                         f"The situation described by '{question}' "
                         "does not differ materially from the current baseline; no unusual action is required."
                     ),
+                    "type": "null",
                     "supporting_evidence": null_supporting,
                     "contradicting_evidence": null_contradicting,
                 }
@@ -79,6 +80,7 @@ class AnalysisEngine:
                         f"The outcome is primarily constrained by '{constraint}', and the situation "
                         "should be understood through this limiting factor rather than the baseline alone."
                     ),
+                    "type": "constraint",
                     "supporting_evidence": constraint_supporting,
                     "contradicting_evidence": constraint_contradicting,
                 })
@@ -93,6 +95,7 @@ class AnalysisEngine:
                         f"The expert perspective is primarily shaped by '{skill}', and the situation "
                         "should be examined through this analytical lens rather than the baseline alone."
                     ),
+                    "type": "skill",
                     "supporting_evidence": skill_supporting,
                     "contradicting_evidence": skill_contradicting,
                 })
@@ -124,6 +127,14 @@ class AnalysisEngine:
                         marks[str(hypothesis_index)] = "N/A"
                 diagnosticity_matrix[evidence] = marks
 
+            # Derived from each hypothesis's explicit "type" field rather than
+            # assuming index 0 is null - the type field is the single source
+            # of truth for hypothesis origin.
+            null_hypothesis_indices = {
+                str(index) for index, hypothesis in enumerate(hypotheses)
+                if hypothesis.get("type") == "null"
+            }
+
             for hypothesis_index, hypothesis in enumerate(hypotheses):
                 hypothesis["status"] = self._evaluate_status(
                     hypothesis["supporting_evidence"],
@@ -131,6 +142,7 @@ class AnalysisEngine:
                     allow_contradiction_to_reject=allow_contradiction_flags[hypothesis_index],
                     diagnosticity_matrix=diagnosticity_matrix,
                     hypothesis_index=hypothesis_index,
+                    excluded_indices=null_hypothesis_indices,
                 )
 
             # Internal scaffold for the future Causal Reasoning Layer (see
@@ -240,6 +252,7 @@ class AnalysisEngine:
         allow_contradiction_to_reject=True,
         diagnosticity_matrix=None,
         hypothesis_index=None,
+        excluded_indices=None,
     ) -> str:
         has_contradiction = bool(contradicting_evidence)
 
@@ -247,7 +260,9 @@ class AnalysisEngine:
             has_support = bool(supporting_evidence)
         else:
             has_support = any(
-                cls._is_diagnostic_support(evidence, hypothesis_index, diagnosticity_matrix)
+                cls._is_diagnostic_support(
+                    evidence, hypothesis_index, diagnosticity_matrix, excluded_indices=excluded_indices
+                )
                 for evidence in supporting_evidence
             )
 
@@ -258,7 +273,7 @@ class AnalysisEngine:
         return "unresolved"
 
     @staticmethod
-    def _is_diagnostic_support(evidence, hypothesis_index, diagnosticity_matrix) -> bool:
+    def _is_diagnostic_support(evidence, hypothesis_index, diagnosticity_matrix, excluded_indices=None) -> bool:
         marks = diagnosticity_matrix.get(evidence)
         if not marks:
             return False
@@ -268,12 +283,14 @@ class AnalysisEngine:
             return False
 
         # Competitive hypothesis set: constraint- and skill-derived hypotheses
-        # only. Index "0" is always the null hypothesis (see hypothesis
-        # ordering in analyze()) and is excluded so its N/A mark - which is
-        # structural (different evidence vocabulary), not a real competing
-        # explanation - can't manufacture diagnosticity on its own.
-        null_hypothesis_index = "0"
-        excluded_keys = {this_key, null_hypothesis_index}
+        # only. Non-competing hypotheses (e.g. the null hypothesis, identified
+        # by type rather than index - see excluded_indices in analyze()) are
+        # excluded so their N/A mark - which is structural (different evidence
+        # vocabulary), not a real competing explanation - can't manufacture
+        # diagnosticity on its own.
+        excluded_keys = {this_key}
+        if excluded_indices:
+            excluded_keys |= set(excluded_indices)
 
         return any(
             mark != "C"
@@ -323,6 +340,7 @@ class AnalysisEngine:
     def _build_causal_graph(hypothesis, source=None) -> dict:
         statement = hypothesis.get("statement")
         status = hypothesis.get("status")
+        hypothesis_type = hypothesis.get("type")
         supporting = hypothesis.get("supporting_evidence") or []
         contradicting = hypothesis.get("contradicting_evidence") or []
 
@@ -345,6 +363,10 @@ class AnalysisEngine:
 
         nodes.append(status)
         edges.append({"from": statement, "to": status, "relation": "has_status"})
+
+        if hypothesis_type is not None:
+            nodes.append(hypothesis_type)
+            edges.append({"from": statement, "to": hypothesis_type, "relation": "has_type"})
 
         return {"nodes": nodes, "edges": edges}
 
