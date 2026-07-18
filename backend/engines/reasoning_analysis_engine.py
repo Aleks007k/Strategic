@@ -3,6 +3,8 @@ Strategic AI Core Backend
 Reasoning package analysis engine
 """
 
+import re
+
 from core.analysis_result import AnalysisResult
 from knowledge.knowledge_loader import KnowledgeLoader
 
@@ -25,46 +27,64 @@ class AnalysisEngine:
     def analyze(self, reasoning_package) -> dict:
         if self.llm_provider is not None:
             agent_name = reasoning_package.get("agent")
+            mission = reasoning_package.get("mission", {})
+            question = mission.get("question")
+            goal = mission.get("goal")
+            constraints = [
+                c for c in mission.get("constraints", [])
+                if isinstance(c, str) and c
+            ]
+            skills_list = [
+                s for s in reasoning_package.get("skills", [])
+                if isinstance(s, str) and s
+            ]
+            domain_knowledge = self._load_domain_knowledge(agent_name)
 
             # Internal scaffold for the future Hypothesis Layer (see
-            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic and empty
-            # by default; not yet populated, not sent to the provider, and
-            # not exposed in the returned result.
+            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic; not yet
+            # resolved, not sent to the provider, and not exposed in the
+            # returned result.
+            null_contradicting = []
+            null_contradicting.extend(f"Specific constraint present: '{c}'." for c in constraints)
+            null_contradicting.extend(f"Specific skill/lens present: '{s}'." for s in skills_list)
+            if isinstance(goal, dict) and goal.get("name"):
+                null_contradicting.append(f"Specific goal present: '{goal.get('name')}'.")
+            null_supporting = [] if null_contradicting else [
+                "No constraints, skills, or goal were specified, "
+                "consistent with an undifferentiated baseline situation."
+            ]
+
             hypotheses = [
                 {
                     "statement": (
-                        f"The situation described by '{reasoning_package.get('mission', {}).get('question')}' "
+                        f"The situation described by '{question}' "
                         "does not differ materially from the current baseline; no unusual action is required."
                     ),
                     "status": "unresolved",
-                    "supporting_evidence": [],
-                    "contradicting_evidence": [],
+                    "supporting_evidence": null_supporting,
+                    "contradicting_evidence": null_contradicting,
                 }
             ]
 
-            for constraint in reasoning_package.get("mission", {}).get("constraints", []):
-                if not isinstance(constraint, str) or not constraint:
-                    continue
+            for constraint in constraints:
                 hypotheses.append({
                     "statement": (
                         f"The outcome is primarily constrained by '{constraint}', and the situation "
                         "should be understood through this limiting factor rather than the baseline alone."
                     ),
                     "status": "unresolved",
-                    "supporting_evidence": [],
+                    "supporting_evidence": self._find_supporting_evidence(constraint, question, domain_knowledge),
                     "contradicting_evidence": [],
                 })
 
-            for skill in reasoning_package.get("skills", []):
-                if not isinstance(skill, str) or not skill:
-                    continue
+            for skill in skills_list:
                 hypotheses.append({
                     "statement": (
                         f"The expert perspective is primarily shaped by '{skill}', and the situation "
                         "should be examined through this analytical lens rather than the baseline alone."
                     ),
                     "status": "unresolved",
-                    "supporting_evidence": [],
+                    "supporting_evidence": self._find_supporting_evidence(skill, question, domain_knowledge),
                     "contradicting_evidence": [],
                 })
 
@@ -75,13 +95,13 @@ class AnalysisEngine:
                     "skills": reasoning_package.get("skills"),
                     "methodologies": reasoning_package.get("methodologies"),
                     "analysis_steps": reasoning_package.get("analysis_steps"),
-                    "question": reasoning_package.get("mission", {}).get("question"),
-                    "goals": reasoning_package.get("mission", {}).get("goal"),
-                    "constraints": reasoning_package.get("mission", {}).get("constraints"),
+                    "question": question,
+                    "goals": goal,
+                    "constraints": mission.get("constraints"),
                     "time_horizon": reasoning_package.get("time_horizon"),
                     "expert_scope": reasoning_package.get("expert_scope"),
                     "decision_type": reasoning_package.get("decision_type"),
-                    "domain_knowledge": self._load_domain_knowledge(agent_name),
+                    "domain_knowledge": domain_knowledge,
                 },
             }
             result = self.llm_provider.generate_analysis(llm_input)
@@ -115,3 +135,25 @@ class AnalysisEngine:
             return self.knowledge_loader.load_domain(domain_name)
         except OSError:
             return None
+
+    @staticmethod
+    def _extract_keywords(text) -> list:
+        if not isinstance(text, str):
+            return []
+        words = re.findall(r"\w+", text.lower())
+        keywords = [word for word in words if len(word) >= 3]
+        return list(dict.fromkeys(keywords))
+
+    @classmethod
+    def _find_supporting_evidence(cls, subject, question, domain_knowledge) -> list:
+        domain_text = domain_knowledge.lower() if isinstance(domain_knowledge, str) else ""
+        question_text = question.lower() if isinstance(question, str) else ""
+
+        evidence = []
+        for keyword in cls._extract_keywords(subject):
+            if domain_text and keyword in domain_text:
+                evidence.append(f"Domain knowledge references '{keyword}'.")
+            if question_text and keyword in question_text:
+                evidence.append(f"The question directly references '{keyword}'.")
+
+        return evidence
