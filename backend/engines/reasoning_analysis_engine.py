@@ -210,6 +210,18 @@ class AnalysisEngine:
             # docs/STRATEGIC_HYPOTHESIS_LAYER.md). No action generation, no
             # inference. Not exposed, not sent to the provider, and not
             # consulted by ranking/status/scoring/confidence/assumptions.
+            #
+            # decision_action_schema is a shape reference only - it documents
+            # the fields a future decision action will have. It is never
+            # instantiated or added to decision_model["actions"].
+            decision_action_schema = {
+                "id": None,
+                "description": None,
+                "triggered_by_hypotheses": [],
+                "blocked_by_hypotheses": [],
+                "confidence": None,
+            }
+
             decision_model = {
                 "actions": [],
                 "links": [],
