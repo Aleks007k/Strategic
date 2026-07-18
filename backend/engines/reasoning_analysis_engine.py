@@ -55,6 +55,19 @@ class AnalysisEngine:
                     "contradicting_evidence": [],
                 })
 
+            for skill in reasoning_package.get("skills", []):
+                if not isinstance(skill, str) or not skill:
+                    continue
+                hypotheses.append({
+                    "statement": (
+                        f"The expert perspective is primarily shaped by '{skill}', and the situation "
+                        "should be examined through this analytical lens rather than the baseline alone."
+                    ),
+                    "status": "unresolved",
+                    "supporting_evidence": [],
+                    "contradicting_evidence": [],
+                })
+
             llm_input = {
                 "agent": agent_name,
                 "reasoning_context": {
