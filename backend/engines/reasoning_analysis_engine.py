@@ -159,13 +159,35 @@ class AnalysisEngine:
                     competitor_indices=indices_by_type.get(hypothesis_type),
                 )
 
+            # Internal scaffold: deterministic evidence quality weighting based
+            # on provenance (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Not
+            # exposed, not sent to the provider, and not consulted by
+            # ranking/status/scoring/assumptions. Computed before causal
+            # graphs so graph construction can attach quality nodes.
+            provenance_weights = {"domain_knowledge": 2, "question": 1}
+
+            evidence_quality = {}
+            for hypothesis_index in range(len(hypotheses)):
+                for evidence, provenance in provenance_maps[hypothesis_index].items():
+                    weight = provenance_weights.get(provenance, 0)
+                    current = evidence_quality.get(evidence)
+                    if current is None or weight > current["weight"]:
+                        evidence_quality[evidence] = {"provenance": provenance, "weight": weight}
+
+            for evidence in all_evidence:
+                if evidence not in evidence_quality:
+                    evidence_quality[evidence] = {"provenance": None, "weight": 0}
+
             # Internal scaffold for the future Causal Reasoning Layer (see
             # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic; not yet
             # consulted by evidence/ranking, not sent to the provider, and
             # not exposed in the returned result.
             causal_graphs = [
                 self._build_causal_graph(
-                    hypothesis, source=sources[index], evidence_provenance=provenance_maps[index]
+                    hypothesis,
+                    source=sources[index],
+                    evidence_provenance=provenance_maps[index],
+                    evidence_quality=evidence_quality,
                 )
                 for index, hypothesis in enumerate(hypotheses)
             ]
@@ -195,24 +217,6 @@ class AnalysisEngine:
                 for evidence, occurrences in evidence_occurrences.items()
                 if len(occurrences) >= 2
             }
-
-            # Internal scaffold: deterministic evidence quality weighting based
-            # on provenance (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Not
-            # exposed, not sent to the provider, and not consulted by
-            # ranking/status/scoring/assumptions.
-            provenance_weights = {"domain_knowledge": 2, "question": 1}
-
-            evidence_quality = {}
-            for hypothesis_index in range(len(hypotheses)):
-                for evidence, provenance in provenance_maps[hypothesis_index].items():
-                    weight = provenance_weights.get(provenance, 0)
-                    current = evidence_quality.get(evidence)
-                    if current is None or weight > current["weight"]:
-                        evidence_quality[evidence] = {"provenance": provenance, "weight": weight}
-
-            for evidence in all_evidence:
-                if evidence not in evidence_quality:
-                    evidence_quality[evidence] = {"provenance": None, "weight": 0}
 
             # Internal scaffold: unified evidence evaluation, combining the
             # existing diagnosticity_matrix and evidence_quality without
@@ -411,13 +415,14 @@ class AnalysisEngine:
         return dominant, closest_rival
 
     @staticmethod
-    def _build_causal_graph(hypothesis, source=None, evidence_provenance=None) -> dict:
+    def _build_causal_graph(hypothesis, source=None, evidence_provenance=None, evidence_quality=None) -> dict:
         statement = hypothesis.get("statement")
         status = hypothesis.get("status")
         hypothesis_type = hypothesis.get("type")
         supporting = hypothesis.get("supporting_evidence") or []
         contradicting = hypothesis.get("contradicting_evidence") or []
         provenance_lookup = evidence_provenance or {}
+        quality_lookup = evidence_quality or {}
 
         nodes = [statement]
         nodes.extend(supporting)
@@ -441,6 +446,17 @@ class AnalysisEngine:
             if provenance is not None:
                 nodes.append(provenance)
                 edges.append({"from": evidence, "to": provenance, "relation": "has_provenance"})
+
+        # Quality nodes only for evidence with a real (nonzero) weight - a
+        # weight of 0 means unknown/no provenance, and creating a node for it
+        # would be a fake zero-quality node, which is explicitly avoided.
+        for evidence in supporting + contradicting:
+            quality_info = quality_lookup.get(evidence)
+            weight = quality_info.get("weight") if quality_info else None
+            if weight:
+                quality_node = str(weight)
+                nodes.append(quality_node)
+                edges.append({"from": evidence, "to": quality_node, "relation": "has_quality"})
 
         if source is not None:
             nodes.append(source)
