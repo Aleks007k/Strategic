@@ -103,6 +103,31 @@ class AnalysisEngine:
                 })
                 causal_graphs.append(self._build_causal_graph(hypotheses[-1], source=skill))
 
+            # Internal scaffold: deterministic shared-evidence detection across
+            # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
+            # nodes only (supports/contradicts edges) - source and status nodes
+            # are excluded. Not exposed, not sent to the provider, and not
+            # consulted by ranking/status/assumptions.
+            evidence_occurrences = {}
+            for hypothesis_index, (hypothesis, graph) in enumerate(zip(hypotheses, causal_graphs)):
+                raw_evidence_nodes = [
+                    edge["from"]
+                    for edge in graph["edges"]
+                    if edge["relation"] in ("supports", "contradicts")
+                ]
+                evidence_nodes = list(dict.fromkeys(raw_evidence_nodes))
+                for evidence in evidence_nodes:
+                    evidence_occurrences.setdefault(evidence, []).append({
+                        "hypothesis_index": hypothesis_index,
+                        "statement": hypothesis.get("statement"),
+                    })
+
+            shared_evidence_nodes = {
+                evidence: occurrences
+                for evidence, occurrences in evidence_occurrences.items()
+                if len(occurrences) >= 2
+            }
+
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(hypotheses)
 
             llm_input = {
