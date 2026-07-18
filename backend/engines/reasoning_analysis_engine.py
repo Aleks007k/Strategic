@@ -187,6 +187,7 @@ class AnalysisEngine:
                     evidence_occurrences.setdefault(evidence, []).append({
                         "hypothesis_index": hypothesis_index,
                         "statement": hypothesis.get("statement"),
+                        "provenance": provenance_maps[hypothesis_index].get(evidence),
                     })
 
             shared_evidence_nodes = {
