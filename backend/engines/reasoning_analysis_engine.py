@@ -214,6 +214,18 @@ class AnalysisEngine:
                 if evidence not in evidence_quality:
                     evidence_quality[evidence] = {"provenance": None, "weight": 0}
 
+            # Internal scaffold: unified evidence evaluation, combining the
+            # existing diagnosticity_matrix and evidence_quality without
+            # computing anything new. Not exposed, not sent to the provider,
+            # and not consulted by ranking/status/scoring/assumptions.
+            evidence_evaluation = {
+                evidence: {
+                    "quality": evidence_quality.get(evidence, {"provenance": None, "weight": 0}),
+                    "diagnosticity": marks,
+                }
+                for evidence, marks in diagnosticity_matrix.items()
+            }
+
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(
                 hypotheses, shared_evidence_nodes=shared_evidence_nodes
             )
