@@ -207,6 +207,7 @@ class AnalysisEngine:
                     # Scaffold only: no actions exist yet, so no action
                     # strings/IDs are inserted regardless of status.
                     "impact_state": "unresolved",
+                    "related_actions": [],
                 }
                 for index, hypothesis in enumerate(hypotheses)
             ]
