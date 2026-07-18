@@ -54,26 +54,22 @@ class AnalysisEngine:
                 "consistent with an undifferentiated baseline situation."
             ]
 
+            # Hypotheses are built in two passes: first statement/evidence for
+            # every hypothesis (needed to compute the diagnosticity matrix
+            # across all of them), then status is assigned once every
+            # hypothesis's evidence - and therefore the matrix - is known.
             hypotheses = [
                 {
                     "statement": (
                         f"The situation described by '{question}' "
                         "does not differ materially from the current baseline; no unusual action is required."
                     ),
-                    "status": self._evaluate_status(
-                        null_supporting, null_contradicting, allow_contradiction_to_reject=False
-                    ),
                     "supporting_evidence": null_supporting,
                     "contradicting_evidence": null_contradicting,
                 }
             ]
-
-            # Internal scaffold for the future Causal Reasoning Layer (see
-            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic; not yet
-            # consulted by evidence/ranking, not sent to the provider, and
-            # not exposed in the returned result. Built alongside hypotheses
-            # so each constraint/skill source is available at graph-build time.
-            causal_graphs = [self._build_causal_graph(hypotheses[0])]
+            allow_contradiction_flags = [False]
+            sources = [None]
 
             for constraint in constraints:
                 constraint_supporting = self._find_supporting_evidence(constraint, question, domain_knowledge)
@@ -83,11 +79,11 @@ class AnalysisEngine:
                         f"The outcome is primarily constrained by '{constraint}', and the situation "
                         "should be understood through this limiting factor rather than the baseline alone."
                     ),
-                    "status": self._evaluate_status(constraint_supporting, constraint_contradicting),
                     "supporting_evidence": constraint_supporting,
                     "contradicting_evidence": constraint_contradicting,
                 })
-                causal_graphs.append(self._build_causal_graph(hypotheses[-1], source=constraint))
+                allow_contradiction_flags.append(True)
+                sources.append(constraint)
 
             for skill in skills_list:
                 skill_supporting = self._find_supporting_evidence(skill, question, domain_knowledge)
@@ -97,11 +93,54 @@ class AnalysisEngine:
                         f"The expert perspective is primarily shaped by '{skill}', and the situation "
                         "should be examined through this analytical lens rather than the baseline alone."
                     ),
-                    "status": self._evaluate_status(skill_supporting, skill_contradicting),
                     "supporting_evidence": skill_supporting,
                     "contradicting_evidence": skill_contradicting,
                 })
-                causal_graphs.append(self._build_causal_graph(hypotheses[-1], source=skill))
+                allow_contradiction_flags.append(True)
+                sources.append(skill)
+
+            # Internal scaffold: deterministic ACH-style diagnosticity matrix
+            # (see docs/STRATEGIC_HYPOTHESIS_LAYER.md §5). Exact string equality
+            # only. Not exposed, not sent to the provider. Built from evidence
+            # alone, before status, so status evaluation can be
+            # diagnosticity-aware.
+            all_evidence = []
+            for hypothesis in hypotheses:
+                all_evidence.extend(hypothesis.get("supporting_evidence") or [])
+                all_evidence.extend(hypothesis.get("contradicting_evidence") or [])
+            all_evidence = list(dict.fromkeys(all_evidence))
+
+            diagnosticity_matrix = {}
+            for evidence in all_evidence:
+                marks = {}
+                for hypothesis_index, hypothesis in enumerate(hypotheses):
+                    supporting = hypothesis.get("supporting_evidence") or []
+                    contradicting = hypothesis.get("contradicting_evidence") or []
+                    if evidence in supporting:
+                        marks[str(hypothesis_index)] = "C"
+                    elif evidence in contradicting:
+                        marks[str(hypothesis_index)] = "I"
+                    else:
+                        marks[str(hypothesis_index)] = "N/A"
+                diagnosticity_matrix[evidence] = marks
+
+            for hypothesis_index, hypothesis in enumerate(hypotheses):
+                hypothesis["status"] = self._evaluate_status(
+                    hypothesis["supporting_evidence"],
+                    hypothesis["contradicting_evidence"],
+                    allow_contradiction_to_reject=allow_contradiction_flags[hypothesis_index],
+                    diagnosticity_matrix=diagnosticity_matrix,
+                    hypothesis_index=hypothesis_index,
+                )
+
+            # Internal scaffold for the future Causal Reasoning Layer (see
+            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic; not yet
+            # consulted by evidence/ranking, not sent to the provider, and
+            # not exposed in the returned result.
+            causal_graphs = [
+                self._build_causal_graph(hypothesis, source=sources[index])
+                for index, hypothesis in enumerate(hypotheses)
+            ]
 
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
@@ -127,30 +166,6 @@ class AnalysisEngine:
                 for evidence, occurrences in evidence_occurrences.items()
                 if len(occurrences) >= 2
             }
-
-            # Internal scaffold: deterministic ACH-style diagnosticity matrix
-            # (see docs/STRATEGIC_HYPOTHESIS_LAYER.md §5). Exact string equality
-            # only. Not exposed, not sent to the provider, and not consulted by
-            # ranking/status/assumptions.
-            all_evidence = []
-            for hypothesis in hypotheses:
-                all_evidence.extend(hypothesis.get("supporting_evidence") or [])
-                all_evidence.extend(hypothesis.get("contradicting_evidence") or [])
-            all_evidence = list(dict.fromkeys(all_evidence))
-
-            diagnosticity_matrix = {}
-            for evidence in all_evidence:
-                marks = {}
-                for hypothesis_index, hypothesis in enumerate(hypotheses):
-                    supporting = hypothesis.get("supporting_evidence") or []
-                    contradicting = hypothesis.get("contradicting_evidence") or []
-                    if evidence in supporting:
-                        marks[str(hypothesis_index)] = "C"
-                    elif evidence in contradicting:
-                        marks[str(hypothesis_index)] = "I"
-                    else:
-                        marks[str(hypothesis_index)] = "N/A"
-                diagnosticity_matrix[evidence] = marks
 
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(
                 hypotheses, shared_evidence_nodes=shared_evidence_nodes
@@ -217,16 +232,42 @@ class AnalysisEngine:
         except OSError:
             return None
 
-    @staticmethod
-    def _evaluate_status(supporting_evidence, contradicting_evidence, allow_contradiction_to_reject=True) -> str:
-        has_support = bool(supporting_evidence)
+    @classmethod
+    def _evaluate_status(
+        cls,
+        supporting_evidence,
+        contradicting_evidence,
+        allow_contradiction_to_reject=True,
+        diagnosticity_matrix=None,
+        hypothesis_index=None,
+    ) -> str:
         has_contradiction = bool(contradicting_evidence)
+
+        if diagnosticity_matrix is None:
+            has_support = bool(supporting_evidence)
+        else:
+            has_support = any(
+                cls._is_diagnostic_support(evidence, hypothesis_index, diagnosticity_matrix)
+                for evidence in supporting_evidence
+            )
 
         if allow_contradiction_to_reject and has_contradiction:
             return "rejected"
         if has_support and not has_contradiction:
             return "surviving"
         return "unresolved"
+
+    @staticmethod
+    def _is_diagnostic_support(evidence, hypothesis_index, diagnosticity_matrix) -> bool:
+        marks = diagnosticity_matrix.get(evidence)
+        if not marks:
+            return False
+
+        this_key = str(hypothesis_index)
+        if marks.get(this_key) != "C":
+            return False
+
+        return any(mark != "C" for key, mark in marks.items() if key != this_key)
 
     @staticmethod
     def _score_hypothesis(hypothesis, shared_evidence_nodes=None) -> float:
