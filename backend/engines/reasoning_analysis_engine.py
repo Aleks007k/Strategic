@@ -68,6 +68,13 @@ class AnalysisEngine:
                 }
             ]
 
+            # Internal scaffold for the future Causal Reasoning Layer (see
+            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic; not yet
+            # consulted by evidence/ranking, not sent to the provider, and
+            # not exposed in the returned result. Built alongside hypotheses
+            # so each constraint/skill source is available at graph-build time.
+            causal_graphs = [self._build_causal_graph(hypotheses[0])]
+
             for constraint in constraints:
                 constraint_supporting = self._find_supporting_evidence(constraint, question, domain_knowledge)
                 constraint_contradicting = []
@@ -80,6 +87,7 @@ class AnalysisEngine:
                     "supporting_evidence": constraint_supporting,
                     "contradicting_evidence": constraint_contradicting,
                 })
+                causal_graphs.append(self._build_causal_graph(hypotheses[-1], source=constraint))
 
             for skill in skills_list:
                 skill_supporting = self._find_supporting_evidence(skill, question, domain_knowledge)
@@ -93,14 +101,9 @@ class AnalysisEngine:
                     "supporting_evidence": skill_supporting,
                     "contradicting_evidence": skill_contradicting,
                 })
+                causal_graphs.append(self._build_causal_graph(hypotheses[-1], source=skill))
 
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(hypotheses)
-
-            # Internal scaffold for the future Causal Reasoning Layer (see
-            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). Deterministic; not yet
-            # consulted by evidence/ranking, not sent to the provider, and
-            # not exposed in the returned result.
-            causal_graphs = [self._build_causal_graph(hypothesis) for hypothesis in hypotheses]
 
             llm_input = {
                 "agent": agent_name,
@@ -197,7 +200,7 @@ class AnalysisEngine:
         return dominant, closest_rival
 
     @staticmethod
-    def _build_causal_graph(hypothesis) -> dict:
+    def _build_causal_graph(hypothesis, source=None) -> dict:
         statement = hypothesis.get("statement")
         supporting = hypothesis.get("supporting_evidence") or []
         contradicting = hypothesis.get("contradicting_evidence") or []
@@ -214,6 +217,10 @@ class AnalysisEngine:
             {"from": evidence, "to": statement, "relation": "contradicts"}
             for evidence in contradicting
         )
+
+        if source is not None:
+            nodes.append(source)
+            edges.append({"from": source, "to": statement, "relation": "derives"})
 
         return {"nodes": nodes, "edges": edges}
 
