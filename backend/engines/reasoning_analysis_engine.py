@@ -227,7 +227,7 @@ class AnalysisEngine:
             }
 
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(
-                hypotheses, shared_evidence_nodes=shared_evidence_nodes
+                hypotheses, shared_evidence_nodes=shared_evidence_nodes, evidence_evaluation=evidence_evaluation
             )
 
             llm_input = {
@@ -348,7 +348,12 @@ class AnalysisEngine:
         )
 
     @staticmethod
-    def _score_hypothesis(hypothesis, shared_evidence_nodes=None) -> float:
+    def _score_hypothesis(
+        hypothesis,
+        shared_evidence_nodes=None,
+        evidence_evaluation=None,
+        hypothesis_index=None,
+    ) -> float:
         status = hypothesis.get("status")
         supporting = hypothesis.get("supporting_evidence") or []
         contradicting = hypothesis.get("contradicting_evidence") or []
@@ -357,6 +362,7 @@ class AnalysisEngine:
 
         if shared_evidence_nodes is None:
             evidence_score = len(supporting) - len(contradicting)
+            unique_supporting = supporting
         else:
             unique_supporting = [
                 evidence for evidence in supporting
@@ -364,10 +370,24 @@ class AnalysisEngine:
             ]
             evidence_score = len(unique_supporting) - len(contradicting)
 
-        return status_weight + evidence_score
+        # Evidence quality only ever adds to evidence already counted as
+        # discriminating above (unique_supporting) - shared/non-discriminating
+        # evidence, already excluded there, cannot gain quality points either.
+        quality_score = 0
+        if evidence_evaluation is not None:
+            this_key = str(hypothesis_index)
+            for evidence in unique_supporting:
+                evaluation = evidence_evaluation.get(evidence)
+                if not evaluation:
+                    continue
+                if evaluation.get("diagnosticity", {}).get(this_key) != "C":
+                    continue
+                quality_score += evaluation.get("quality", {}).get("weight", 0)
+
+        return status_weight + evidence_score + quality_score
 
     @classmethod
-    def _rank_hypotheses(cls, hypotheses, shared_evidence_nodes=None):
+    def _rank_hypotheses(cls, hypotheses, shared_evidence_nodes=None, evidence_evaluation=None):
         candidates = [
             (index, hypothesis)
             for index, hypothesis in enumerate(hypotheses)
@@ -376,7 +396,12 @@ class AnalysisEngine:
         ranked = sorted(
             candidates,
             key=lambda pair: (
-                -cls._score_hypothesis(pair[1], shared_evidence_nodes=shared_evidence_nodes),
+                -cls._score_hypothesis(
+                    pair[1],
+                    shared_evidence_nodes=shared_evidence_nodes,
+                    evidence_evaluation=evidence_evaluation,
+                    hypothesis_index=pair[0],
+                ),
                 pair[0],
             ),
         )
