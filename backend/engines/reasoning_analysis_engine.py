@@ -115,13 +115,26 @@ class AnalysisEngine:
             result = self.llm_provider.generate_analysis(llm_input)
             result = result if isinstance(result, dict) else {}
 
+            assumptions = list(result.get("assumptions") or [])
+            if (
+                dominant_hypothesis is not None
+                and closest_rival_hypothesis is not None
+                and dominant_hypothesis.get("status") == "surviving"
+            ):
+                hedge = (
+                    f'Assumes: "{dominant_hypothesis.get("statement")}" '
+                    f'rather than "{closest_rival_hypothesis.get("statement")}".'
+                )
+                if hedge not in assumptions:
+                    assumptions.append(hedge)
+
             return {
                 "agent": reasoning_package.get("agent"),
                 "summary": result.get("summary"),
                 "key_factors": result.get("key_factors", []),
                 "risks": result.get("risks", []),
                 "opportunities": result.get("opportunities", []),
-                "assumptions": result.get("assumptions", []),
+                "assumptions": assumptions,
                 "confidence": result.get("confidence"),
             }
 
