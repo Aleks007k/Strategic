@@ -192,6 +192,20 @@ class AnalysisEngine:
                 for index, hypothesis in enumerate(hypotheses)
             ]
 
+            # Empty scaffold for the future Decision Impact layer (see
+            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). No inference yet - lists
+            # stay empty. Not exposed, not sent to the provider, and not
+            # consulted by ranking/status/scoring/assumptions.
+            decision_impacts = [
+                {
+                    "hypothesis_index": index,
+                    "statement": hypothesis["statement"],
+                    "supports_action": [],
+                    "blocks_action": [],
+                }
+                for index, hypothesis in enumerate(hypotheses)
+            ]
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
@@ -469,7 +483,9 @@ class AnalysisEngine:
             nodes.append(hypothesis_type)
             edges.append({"from": statement, "to": hypothesis_type, "relation": "has_type"})
 
-        return {"nodes": nodes, "edges": edges}
+        # Empty scaffold for the future Decision Impact layer. No nodes/edges
+        # yet - populated in a later step.
+        return {"nodes": nodes, "edges": edges, "decision_links": []}
 
     @staticmethod
     def _extract_keywords(text) -> list:
