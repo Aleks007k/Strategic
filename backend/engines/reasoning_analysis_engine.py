@@ -32,7 +32,10 @@ class AnalysisEngine:
             # not exposed in the returned result.
             hypotheses = [
                 {
-                    "statement": "",
+                    "statement": (
+                        f"The situation described by '{reasoning_package.get('mission', {}).get('question')}' "
+                        "does not differ materially from the current baseline; no unusual action is required."
+                    ),
                     "status": "unresolved",
                     "supporting_evidence": [],
                     "contradicting_evidence": [],
