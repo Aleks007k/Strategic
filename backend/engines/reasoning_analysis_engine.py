@@ -200,6 +200,8 @@ class AnalysisEngine:
                 {
                     "hypothesis_index": index,
                     "statement": hypothesis["statement"],
+                    "hypothesis_type": hypothesis.get("type"),
+                    "hypothesis_status": hypothesis.get("status"),
                     "supports_action": [],
                     "blocks_action": [],
                 }
