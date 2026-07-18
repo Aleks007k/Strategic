@@ -94,6 +94,8 @@ class AnalysisEngine:
                     "contradicting_evidence": skill_contradicting,
                 })
 
+            dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(hypotheses)
+
             llm_input = {
                 "agent": agent_name,
                 "reasoning_context": {
@@ -152,6 +154,28 @@ class AnalysisEngine:
         if has_support and not has_contradiction:
             return "surviving"
         return "unresolved"
+
+    @staticmethod
+    def _score_hypothesis(hypothesis) -> float:
+        status = hypothesis.get("status")
+        supporting = hypothesis.get("supporting_evidence") or []
+        contradicting = hypothesis.get("contradicting_evidence") or []
+
+        status_weight = 1 if status == "surviving" else 0
+        return status_weight + len(supporting) - len(contradicting)
+
+    @classmethod
+    def _rank_hypotheses(cls, hypotheses):
+        candidates = [
+            (index, hypothesis)
+            for index, hypothesis in enumerate(hypotheses)
+            if hypothesis.get("status") != "rejected"
+        ]
+        ranked = sorted(candidates, key=lambda pair: (-cls._score_hypothesis(pair[1]), pair[0]))
+
+        dominant = ranked[0][1] if len(ranked) >= 1 else None
+        closest_rival = ranked[1][1] if len(ranked) >= 2 else None
+        return dominant, closest_rival
 
     @staticmethod
     def _extract_keywords(text) -> list:
