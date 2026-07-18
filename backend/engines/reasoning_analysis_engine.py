@@ -204,6 +204,9 @@ class AnalysisEngine:
                     "hypothesis_status": hypothesis.get("status"),
                     "supports_action": [],
                     "blocks_action": [],
+                    # Scaffold only: no actions exist yet, so no action
+                    # strings/IDs are inserted regardless of status.
+                    "impact_state": "unresolved",
                 }
                 for index, hypothesis in enumerate(hypotheses)
             ]
