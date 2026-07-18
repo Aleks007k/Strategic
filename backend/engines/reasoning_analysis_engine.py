@@ -227,6 +227,11 @@ class AnalysisEngine:
                 "links": [],
             }
 
+            # Empty bridge scaffold between decision_impacts and decision_model.
+            # Future link shape (never instantiated here):
+            # {"hypothesis_index": None, "action_id": None, "relationship": None}
+            decision_action_links = []
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
