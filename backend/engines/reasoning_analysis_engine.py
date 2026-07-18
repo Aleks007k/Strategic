@@ -128,6 +128,30 @@ class AnalysisEngine:
                 if len(occurrences) >= 2
             }
 
+            # Internal scaffold: deterministic ACH-style diagnosticity matrix
+            # (see docs/STRATEGIC_HYPOTHESIS_LAYER.md §5). Exact string equality
+            # only. Not exposed, not sent to the provider, and not consulted by
+            # ranking/status/assumptions.
+            all_evidence = []
+            for hypothesis in hypotheses:
+                all_evidence.extend(hypothesis.get("supporting_evidence") or [])
+                all_evidence.extend(hypothesis.get("contradicting_evidence") or [])
+            all_evidence = list(dict.fromkeys(all_evidence))
+
+            diagnosticity_matrix = {}
+            for evidence in all_evidence:
+                marks = {}
+                for hypothesis_index, hypothesis in enumerate(hypotheses):
+                    supporting = hypothesis.get("supporting_evidence") or []
+                    contradicting = hypothesis.get("contradicting_evidence") or []
+                    if evidence in supporting:
+                        marks[str(hypothesis_index)] = "C"
+                    elif evidence in contradicting:
+                        marks[str(hypothesis_index)] = "I"
+                    else:
+                        marks[str(hypothesis_index)] = "N/A"
+                diagnosticity_matrix[evidence] = marks
+
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(
                 hypotheses, shared_evidence_nodes=shared_evidence_nodes
             )
