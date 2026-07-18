@@ -207,6 +207,9 @@ class AnalysisEngine:
                     # Scaffold only: no actions exist yet, so no action
                     # strings/IDs are inserted regardless of status.
                     "impact_state": "unresolved",
+                    # Scaffold only: not derived from hypothesis_type/status/
+                    # statement/evidence/constraints/skills.
+                    "impact_category": None,
                     "related_actions": [],
                     # Scaffold only: not derived from statement/evidence/
                     # skills/constraints/status.
