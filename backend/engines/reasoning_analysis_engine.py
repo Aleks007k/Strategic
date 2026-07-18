@@ -206,6 +206,15 @@ class AnalysisEngine:
                 for index, hypothesis in enumerate(hypotheses)
             ]
 
+            # Empty scaffold for the future Decision Model layer (see
+            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). No action generation, no
+            # inference. Not exposed, not sent to the provider, and not
+            # consulted by ranking/status/scoring/confidence/assumptions.
+            decision_model = {
+                "actions": [],
+                "links": [],
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
