@@ -244,11 +244,14 @@ class AnalysisEngine:
             # {"hypothesis_index": None, "action_id": None, "relationship": None}
             decision_action_links = []
 
-            # Empty scaffold for future action evaluation criteria. Future
-            # criteria object shape (never instantiated here):
-            # {"name": None, "description": None, "weight": None,
-            #  "affected_by_hypotheses": []}
-            decision_criteria = []
+            # Empty registry for future decision criteria. Not connected to
+            # hypotheses or actions. Future criterion object shape (never
+            # instantiated here):
+            # {"id": None, "name": None, "description": None, "weight": None,
+            #  "category": None}
+            decision_criteria = {
+                "criteria": [],
+            }
 
             # Empty scaffold for future decision/action evaluation results.
             # Future evaluation object shape (never instantiated here):
