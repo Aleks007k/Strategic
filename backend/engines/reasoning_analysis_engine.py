@@ -42,6 +42,19 @@ class AnalysisEngine:
                 }
             ]
 
+            for constraint in reasoning_package.get("mission", {}).get("constraints", []):
+                if not isinstance(constraint, str) or not constraint:
+                    continue
+                hypotheses.append({
+                    "statement": (
+                        f"The outcome is primarily constrained by '{constraint}', and the situation "
+                        "should be understood through this limiting factor rather than the baseline alone."
+                    ),
+                    "status": "unresolved",
+                    "supporting_evidence": [],
+                    "contradicting_evidence": [],
+                })
+
             llm_input = {
                 "agent": agent_name,
                 "reasoning_context": {
