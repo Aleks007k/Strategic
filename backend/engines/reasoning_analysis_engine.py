@@ -60,32 +60,38 @@ class AnalysisEngine:
                         f"The situation described by '{question}' "
                         "does not differ materially from the current baseline; no unusual action is required."
                     ),
-                    "status": "unresolved",
+                    "status": self._evaluate_status(
+                        null_supporting, null_contradicting, allow_contradiction_to_reject=False
+                    ),
                     "supporting_evidence": null_supporting,
                     "contradicting_evidence": null_contradicting,
                 }
             ]
 
             for constraint in constraints:
+                constraint_supporting = self._find_supporting_evidence(constraint, question, domain_knowledge)
+                constraint_contradicting = []
                 hypotheses.append({
                     "statement": (
                         f"The outcome is primarily constrained by '{constraint}', and the situation "
                         "should be understood through this limiting factor rather than the baseline alone."
                     ),
-                    "status": "unresolved",
-                    "supporting_evidence": self._find_supporting_evidence(constraint, question, domain_knowledge),
-                    "contradicting_evidence": [],
+                    "status": self._evaluate_status(constraint_supporting, constraint_contradicting),
+                    "supporting_evidence": constraint_supporting,
+                    "contradicting_evidence": constraint_contradicting,
                 })
 
             for skill in skills_list:
+                skill_supporting = self._find_supporting_evidence(skill, question, domain_knowledge)
+                skill_contradicting = []
                 hypotheses.append({
                     "statement": (
                         f"The expert perspective is primarily shaped by '{skill}', and the situation "
                         "should be examined through this analytical lens rather than the baseline alone."
                     ),
-                    "status": "unresolved",
-                    "supporting_evidence": self._find_supporting_evidence(skill, question, domain_knowledge),
-                    "contradicting_evidence": [],
+                    "status": self._evaluate_status(skill_supporting, skill_contradicting),
+                    "supporting_evidence": skill_supporting,
+                    "contradicting_evidence": skill_contradicting,
                 })
 
             llm_input = {
@@ -135,6 +141,17 @@ class AnalysisEngine:
             return self.knowledge_loader.load_domain(domain_name)
         except OSError:
             return None
+
+    @staticmethod
+    def _evaluate_status(supporting_evidence, contradicting_evidence, allow_contradiction_to_reject=True) -> str:
+        has_support = bool(supporting_evidence)
+        has_contradiction = bool(contradicting_evidence)
+
+        if allow_contradiction_to_reject and has_contradiction:
+            return "rejected"
+        if has_support and not has_contradiction:
+            return "surviving"
+        return "unresolved"
 
     @staticmethod
     def _extract_keywords(text) -> list:
