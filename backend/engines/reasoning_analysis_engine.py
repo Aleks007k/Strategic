@@ -1050,6 +1050,22 @@ class AnalysisEngine:
                 for action_id in action_template_export_view
             }
 
+            # Status summary only - a plain projection of
+            # action_template_export_view. No new checks, no calculations,
+            # no status changes, no inspection of hypothesis/evidence/
+            # provenance/diagnosticity/scores/decision structures.
+            action_template_status_summary = {
+                action_id: {
+                    "action_id": action_id,
+                    "template": export_entry["template"],
+                    "ready": export_entry["ready"],
+                    "released": export_entry["released"],
+                    "status": export_entry["status"],
+                    "reason": export_entry["reason"],
+                }
+                for action_id, export_entry in action_template_export_view.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
