@@ -1034,6 +1034,25 @@ class AnalysisEngine:
                 for action_id, candidate in action_candidate_pool.items()
             }
 
+            # Assessment Agent Contract Scaffold: fixed agent schema only, all
+            # agents "pending" with result None. No agent execution, no
+            # calculation, no inspection of action text/description/
+            # hypotheses/evidence/provenance/diagnosticity/scores/decision
+            # structures.
+            assessment_agent_contract = {
+                action_id: {
+                    "action_id": action_id,
+                    "agents": {
+                        "feasibility": {"status": "pending", "result": None},
+                        "impact": {"status": "pending", "result": None},
+                        "risk": {"status": "pending", "result": None},
+                        "cost": {"status": "pending", "result": None},
+                        "time_horizon": {"status": "pending", "result": None},
+                    },
+                }
+                for action_id in action_candidate_assessment_context
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
