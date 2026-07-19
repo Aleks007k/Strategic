@@ -504,6 +504,22 @@ class AnalysisEngine:
                 for action in generated_actions
             }
 
+            # Explainability trace only - assembles already existing
+            # per-action structures into one combined view. No
+            # recalculation, no text generation, no interpretation.
+            decision_action_explainability_trace = {
+                action["id"]: {
+                    "action_id": action["id"],
+                    "summary": decision_action_summary[action["id"]],
+                    "evidence": decision_action_evidence[action["id"]],
+                    "quality": decision_action_quality_trace[action["id"]],
+                    "diagnosticity": decision_action_diagnosticity_trace[action["id"]],
+                    "score": decision_action_score_trace[action["id"]],
+                    "readiness": decision_action_readiness[action["id"]],
+                }
+                for action in generated_actions
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
