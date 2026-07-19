@@ -1080,6 +1080,26 @@ class AnalysisEngine:
                 for action_id in action_template_status_summary
             }
 
+            # Final flat report only - reshapes the existing final snapshot.
+            # Only allowed computation is bool() presence checks. No
+            # inspection of hypothesis/evidence/provenance/diagnosticity/
+            # scores/decision structures, no fixing of incomplete actions,
+            # no recommendations.
+            action_template_final_report = {
+                action_id: {
+                    "action_id": action_id,
+                    "template": snapshot["trace"]["registry"]["template"],
+                    "title": snapshot["trace"]["registry"]["title"],
+                    "ready": snapshot["status"]["ready"],
+                    "released": snapshot["status"]["released"],
+                    "status": snapshot["status"]["status"],
+                    "reason": snapshot["status"]["reason"],
+                    "audit_available": bool(snapshot["audit"]),
+                    "trace_available": bool(snapshot["trace"]),
+                }
+                for action_id, snapshot in action_template_final_snapshot.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
