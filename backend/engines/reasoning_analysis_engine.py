@@ -743,6 +743,24 @@ class AnalysisEngine:
                 for action_id in decision_action_final_status
             }
 
+            # Final human-readable structural report only - reshapes the
+            # existing final snapshot. Only allowed computation is a bool()
+            # presence check. No inspection of evidence/provenance/
+            # diagnosticity/hypotheses/quality, no recalculation, comparison,
+            # or ranking.
+            decision_action_final_report = {
+                action_id: {
+                    "action_id": action_id,
+                    "status": snapshot["status"]["status"],
+                    "released": snapshot["status"]["released"],
+                    "score": snapshot["status"]["score"],
+                    "validation": snapshot["status"]["reason"],
+                    "trace_available": bool(snapshot["trace"]),
+                    "audit_available": bool(snapshot["audit"]),
+                }
+                for action_id, snapshot in decision_action_final_snapshot.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
