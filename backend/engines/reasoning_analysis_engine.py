@@ -1255,6 +1255,27 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_provider_request
             }
 
+            # Feasibility Agent Mock Provider Execution: deterministic local
+            # simulation only, for pipeline testing - no LLM/AI/external
+            # API/network call, not a real evaluation. result values are
+            # fixed mock constants, not derived from any inspection of
+            # title/description/hypothesis/evidence/provenance/
+            # diagnosticity/scores/decision structures.
+            feasibility_agent_mock_execution = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "status": "completed",
+                    "request": feasibility_agent_provider_executor[action_id]["request"],
+                    "result": {
+                        "score": 0.5,
+                        "reasoning": "mock_result",
+                        "confidence": 0.5,
+                    },
+                }
+                for action_id in feasibility_agent_provider_executor
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
