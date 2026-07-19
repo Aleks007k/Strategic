@@ -1276,6 +1276,23 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_provider_executor
             }
 
+            # Feasibility Agent Final Result Integration: pure combination of
+            # the existing mock result and validation state. No
+            # recalculation, no interpretation, no status change, no ranking
+            # or comparison between candidates, no inspection of titles/
+            # descriptions/hypotheses/evidence/provenance/diagnosticity/
+            # decision structures.
+            feasibility_agent_final_result = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "status": feasibility_agent_mock_execution[action_id]["status"],
+                    "result": feasibility_agent_mock_execution[action_id]["result"],
+                    "validation": feasibility_agent_result_validation[action_id],
+                }
+                for action_id in feasibility_agent_mock_execution
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
