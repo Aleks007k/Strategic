@@ -306,6 +306,13 @@ class AnalysisEngine:
                 for link in decision_action_links
             ]
 
+            # First deterministic score aggregation: a plain sum of
+            # evaluation impacts per action. No comparison, sorting, best-
+            # action selection, weighting, or normalization.
+            decision_scores = {action["id"]: 0 for action in generated_actions}
+            for evaluation in decision_evaluations:
+                decision_scores[evaluation["action_id"]] += evaluation["impact"]
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
