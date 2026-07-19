@@ -791,6 +791,19 @@ class AnalysisEngine:
                         "risks": [],
                     })
 
+            # Registry layer for action_generator_output only - stable
+            # identity fields (id/hypothesis_index/title). No inspection of
+            # evidence/provenance/diagnosticity/scores, no connection to
+            # generated_actions/decision_model, no decision links.
+            action_generator_registry = [
+                {
+                    "id": action["id"],
+                    "hypothesis_index": action["hypothesis_index"],
+                    "title": action["title"],
+                }
+                for action in action_generator_output
+            ]
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
