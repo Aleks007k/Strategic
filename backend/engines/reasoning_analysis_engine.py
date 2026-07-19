@@ -457,6 +457,32 @@ class AnalysisEngine:
                 for action in generated_actions
             }
 
+            # Readiness summary only - derives ready/missing purely from the
+            # existing completeness trace. No comparison, no best-action
+            # selection, no recommendations.
+            decision_action_readiness = {}
+            for action in generated_actions:
+                action_id = action["id"]
+                completeness = decision_action_completeness_trace[action_id]
+
+                missing = []
+                if completeness["has_evidence"] is False:
+                    missing.append("evidence")
+                if completeness["has_provenance"] is False:
+                    missing.append("provenance")
+                if completeness["has_quality_trace"] is False:
+                    missing.append("quality_trace")
+                if completeness["has_diagnosticity_trace"] is False:
+                    missing.append("diagnosticity_trace")
+                if completeness["has_score_trace"] is False:
+                    missing.append("score_trace")
+
+                decision_action_readiness[action_id] = {
+                    "action_id": action_id,
+                    "ready": len(missing) == 0,
+                    "missing": missing,
+                }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
