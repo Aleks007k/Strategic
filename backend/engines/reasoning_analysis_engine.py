@@ -1166,6 +1166,34 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_runner
             }
 
+            # Feasibility Agent Result Validator: pure key-presence check on
+            # the mock result, no value inspection, no quality evaluation, no
+            # feasibility conclusions. No inspection of title/description/
+            # hypotheses/evidence/provenance/diagnosticity/decision
+            # structures.
+            feasibility_agent_result_validation = {}
+            for action_id, execution_result in feasibility_agent_execution_result.items():
+                result = execution_result["result"]
+                required_fields = ["score", "reasoning", "confidence"]
+                feasibility_agent_result_validation[action_id] = {
+                    "action_id": action_id,
+                    "valid": all([
+                        "score" in result,
+                        "reasoning" in result,
+                        "confidence" in result,
+                    ]),
+                    "missing": [
+                        field_name
+                        for field_name in required_fields
+                        if field_name not in result
+                    ],
+                    "extra_fields": [
+                        field_name
+                        for field_name in result.keys()
+                        if field_name not in required_fields
+                    ],
+                }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
