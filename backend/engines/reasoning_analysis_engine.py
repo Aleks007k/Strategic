@@ -1194,6 +1194,24 @@ class AnalysisEngine:
                     ],
                 }
 
+            # Feasibility Agent Provider Adapter Interface: integration
+            # interface only, no provider selected, no call made. input is a
+            # direct reference to the existing prompt_contract. No LLM/API
+            # call, no scores/reasoning/confidence created, no inspection of
+            # action content/title/description/hypotheses/evidence/
+            # provenance/diagnosticity/decision structures.
+            feasibility_agent_provider_adapter = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "provider": None,
+                    "input": feasibility_agent_runner[action_id]["prompt_contract"],
+                    "output": None,
+                    "status": "not_executed",
+                }
+                for action_id in feasibility_agent_runner
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
