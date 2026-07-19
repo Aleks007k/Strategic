@@ -1066,6 +1066,20 @@ class AnalysisEngine:
                 for action_id, export_entry in action_template_export_view.items()
             }
 
+            # Final immutable-style snapshot only - collects existing final
+            # structures. No recalculation, no inspection of hypothesis/
+            # evidence/provenance/diagnosticity/scores/decision structures,
+            # no interpretation.
+            action_template_final_snapshot = {
+                action_id: {
+                    "action_id": action_id,
+                    "status": action_template_status_summary[action_id],
+                    "trace": action_template_final_trace[action_id],
+                    "audit": action_template_audit_log[action_id],
+                }
+                for action_id in action_template_status_summary
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
