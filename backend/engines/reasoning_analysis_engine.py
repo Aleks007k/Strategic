@@ -951,6 +951,20 @@ class AnalysisEngine:
                 for action_id, metadata in action_template_metadata.items()
             }
 
+            # Readiness state mapping only - derived purely from
+            # action_template_completeness. No inspection of action content/
+            # templates/hypotheses/evidence/decision structures, no
+            # generation or repair of missing fields.
+            action_template_readiness = {
+                action_id: {
+                    "action_id": action_id,
+                    "ready": completeness["complete"],
+                    "missing": completeness["missing"],
+                    "status": "ready" if completeness["complete"] else "incomplete",
+                }
+                for action_id, completeness in action_template_completeness.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
