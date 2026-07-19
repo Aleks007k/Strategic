@@ -1348,6 +1348,15 @@ class AnalysisEngine:
                 },
             }
 
+            # Feasibility Agent Mock Provider Component: static description
+            # only, no function created, no execution, no imports, no
+            # external dependencies, no generated results.
+            feasibility_agent_mock_provider = {
+                "name": "mock",
+                "status": "available",
+                "execute": "mock_execution",
+            }
+
             # Feasibility Agent Provider Dispatcher: deterministic dispatch
             # simulation only, bridging routing to the existing mock result.
             # No provider execution happens here, no model call, no new
