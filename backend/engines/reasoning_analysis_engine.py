@@ -1311,6 +1311,23 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_provider_executor
             }
 
+            # Feasibility Agent Provider Router: routing only, selects
+            # "mock" as the provider without calling it. No model call, no
+            # results created, no inspection of action content/title/
+            # description/hypotheses/evidence/provenance/diagnosticity/
+            # scores/decision structures.
+            feasibility_agent_provider_router = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "provider_type": feasibility_agent_provider_interface[action_id]["provider_type"],
+                    "selected_provider": "mock",
+                    "request": feasibility_agent_provider_interface[action_id]["request_schema"],
+                    "status": "ready",
+                }
+                for action_id in feasibility_agent_provider_interface
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
