@@ -982,6 +982,20 @@ class AnalysisEngine:
                 for action_id, candidate in action_candidate_pool.items()
             }
 
+            # Action Candidate Assessment Scaffold: empty placeholder only.
+            # No inspection of title/description/hypotheses/evidence/
+            # provenance/diagnosticity/scores/decision structures - criteria
+            # and status stay unresolved until a later step.
+            action_candidate_assessment = {
+                action_id: {
+                    "action_id": action_id,
+                    "template": source["template"],
+                    "assessment_status": "pending",
+                    "criteria": {},
+                }
+                for action_id, source in action_candidate_assessment_input.items()
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
