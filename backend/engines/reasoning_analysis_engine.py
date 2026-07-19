@@ -400,6 +400,34 @@ class AnalysisEngine:
                 for action_id, items in decision_action_evidence.items()
             }
 
+            # Internal scaffold: unified evidence evaluation, combining the
+            # existing diagnosticity_matrix and evidence_quality without
+            # computing anything new. Not exposed, not sent to the provider,
+            # and not consulted by ranking/status/scoring/assumptions. Built
+            # here (rather than nearer its later ranking use) so the decision
+            # action diagnosticity trace below can read it too.
+            evidence_evaluation = {
+                evidence: {
+                    "quality": evidence_quality.get(evidence, {"provenance": None, "weight": 0}),
+                    "diagnosticity": marks,
+                }
+                for evidence, marks in diagnosticity_matrix.items()
+            }
+
+            # Diagnosticity trace only - re-exposes each action's evidence
+            # diagnosticity marks from the existing evidence_evaluation
+            # registry. No recalculation, no scoring, no ranking.
+            decision_action_diagnosticity_trace = {
+                action_id: [
+                    {
+                        "evidence": evidence,
+                        "diagnosticity": evidence_evaluation[evidence]["diagnosticity"],
+                    }
+                    for evidence in [item["evidence"] for item in items]
+                ]
+                for action_id, items in decision_action_evidence.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
@@ -424,18 +452,6 @@ class AnalysisEngine:
                 evidence: occurrences
                 for evidence, occurrences in evidence_occurrences.items()
                 if len(occurrences) >= 2
-            }
-
-            # Internal scaffold: unified evidence evaluation, combining the
-            # existing diagnosticity_matrix and evidence_quality without
-            # computing anything new. Not exposed, not sent to the provider,
-            # and not consulted by ranking/status/scoring/assumptions.
-            evidence_evaluation = {
-                evidence: {
-                    "quality": evidence_quality.get(evidence, {"provenance": None, "weight": 0}),
-                    "diagnosticity": marks,
-                }
-                for evidence, marks in diagnosticity_matrix.items()
             }
 
             dominant_hypothesis, closest_rival_hypothesis = self._rank_hypotheses(
