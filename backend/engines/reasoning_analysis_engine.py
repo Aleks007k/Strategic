@@ -891,6 +891,46 @@ class AnalysisEngine:
                         "risks": [],
                     })
 
+            # Action Template Materialization Layer: fills each template
+            # action's placeholder fields from a fixed, static template
+            # definition matched only by the existing "template" field - no
+            # hypothesis/evidence inspection, no inference, no mutation of
+            # action_template_output itself.
+            action_template_definitions = {
+                "null_template": {
+                    "description": "Maintain the current baseline strategy without deviation.",
+                    "expected_outcomes": ["Situation remains within expected baseline parameters."],
+                    "required_resources": [],
+                    "risks": ["Baseline assumption proves incorrect if conditions change unexpectedly."],
+                },
+                "constraint_template": {
+                    "description": "Address the identified constraint directly to reduce its limiting effect.",
+                    "expected_outcomes": ["The constraint's limiting effect is reduced or managed."],
+                    "required_resources": ["Budget or resource allocation to address the constraint."],
+                    "risks": ["The constraint may not be fully resolvable within available resources."],
+                },
+                "skill_template": {
+                    "description": "Apply the relevant expert lens to guide further analysis and action.",
+                    "expected_outcomes": ["Analysis grounded in the relevant expert perspective is produced."],
+                    "required_resources": ["Access to the relevant domain expertise."],
+                    "risks": ["The expert lens may not capture factors outside its own domain."],
+                },
+            }
+
+            action_template_materialized_output = []
+            for source in action_template_output:
+                template = action_template_definitions[source["template"]]
+                action_template_materialized_output.append({
+                    "id": source["id"],
+                    "hypothesis_index": source["hypothesis_index"],
+                    "template": source["template"],
+                    "title": source["title"],
+                    "description": template["description"],
+                    "expected_outcomes": template["expected_outcomes"],
+                    "required_resources": template["required_resources"],
+                    "risks": template["risks"],
+                })
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
