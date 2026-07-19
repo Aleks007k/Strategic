@@ -354,6 +354,37 @@ class AnalysisEngine:
                         "evidence": evidence,
                     })
 
+            # Structural provenance only - where each action came from
+            # (hypothesis identity/type/status + evidence provenance), read
+            # entirely from existing hypotheses/provenance_maps. No quality
+            # or score calculation. decision_action_links only ever contains
+            # surviving hypotheses, so unresolved ones never appear here.
+            decision_action_provenance = {
+                action["id"]: {
+                    "hypothesis_index": None,
+                    "hypothesis_type": None,
+                    "hypothesis_status": None,
+                    "evidence_provenance": [],
+                }
+                for action in generated_actions
+            }
+            for link in decision_action_links:
+                hypothesis_index = link["hypothesis_index"]
+                hypothesis = hypotheses[hypothesis_index]
+                provenance_lookup = provenance_maps[hypothesis_index]
+                decision_action_provenance[link["action_id"]] = {
+                    "hypothesis_index": hypothesis_index,
+                    "hypothesis_type": hypothesis["type"],
+                    "hypothesis_status": hypothesis["status"],
+                    "evidence_provenance": [
+                        {
+                            "evidence": evidence,
+                            "provenance": provenance_lookup.get(evidence),
+                        }
+                        for evidence in hypothesis["supporting_evidence"]
+                    ],
+                }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
