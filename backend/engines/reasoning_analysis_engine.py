@@ -548,6 +548,27 @@ class AnalysisEngine:
                 for action in generated_actions
             }
 
+            # Combined index only - links every generated action to its
+            # existing traces (registry/summary/explainability/readiness/
+            # consistency) for direct lookup. No recalculation, no new
+            # inference. Placed here (rather than right after
+            # decision_registry_consistency_trace) because summary,
+            # readiness, and explainability aren't built until this point.
+            decision_action_registry_by_id = {
+                entry["id"]: entry for entry in decision_action_registry
+            }
+            decision_action_trace_index = {
+                action["id"]: {
+                    "action_id": action["id"],
+                    "registry": decision_action_registry_by_id[action["id"]],
+                    "summary": decision_action_summary[action["id"]],
+                    "explainability": decision_action_explainability_trace[action["id"]],
+                    "readiness": decision_action_readiness[action["id"]],
+                    "consistency": decision_registry_consistency_trace[action["id"]],
+                }
+                for action in generated_actions
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
