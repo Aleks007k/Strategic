@@ -1237,6 +1237,24 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_provider_adapter
             }
 
+            # Feasibility Agent Provider Executor Interface: execution
+            # interface container only - no model call, no request sent, no
+            # feasibility result generated. request is a direct reference to
+            # the existing provider request. No inspection of action
+            # content/titles/descriptions/hypotheses/evidence/provenance/
+            # diagnosticity/decision structures.
+            feasibility_agent_provider_executor = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "request": feasibility_agent_provider_request[action_id],
+                    "provider": None,
+                    "execution_status": "not_started",
+                    "response": None,
+                }
+                for action_id in feasibility_agent_provider_request
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
