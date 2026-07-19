@@ -339,6 +339,21 @@ class AnalysisEngine:
                     "contribution": evaluation["impact"] * weight,
                 })
 
+            # Traceability only - connects each generated action back to the
+            # supporting_evidence of the hypothesis that produced it, via the
+            # existing decision_action_links. decision_action_links only ever
+            # contains surviving hypotheses (see the generation loop above),
+            # so unresolved hypotheses and contradicting evidence never
+            # appear here without any extra filtering.
+            decision_action_evidence = {action["id"]: [] for action in generated_actions}
+            for link in decision_action_links:
+                hypothesis = hypotheses[link["hypothesis_index"]]
+                for evidence in hypothesis["supporting_evidence"]:
+                    decision_action_evidence[link["action_id"]].append({
+                        "hypothesis_index": link["hypothesis_index"],
+                        "evidence": evidence,
+                    })
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
