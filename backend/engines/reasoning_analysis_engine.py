@@ -282,11 +282,18 @@ class AnalysisEngine:
             # decision_model registers candidate actions by ID only - it does
             # not duplicate generated_actions' content (name/description/
             # category/resources/risks/outcomes stay only in
-            # generated_actions). Not evaluated, not linked, not sent to the
-            # provider.
+            # generated_actions). links mirrors decision_action_links exactly
+            # - no new links, no evaluation. Not sent to the provider.
             decision_model = {
                 "actions": [{"action_id": action["id"]} for action in generated_actions],
-                "links": [],
+                "links": [
+                    {
+                        "action_id": link["action_id"],
+                        "hypothesis_index": link["hypothesis_index"],
+                        "relationship": link["relationship"],
+                    }
+                    for link in decision_action_links
+                ],
             }
 
             # Internal scaffold: deterministic shared-evidence detection across
