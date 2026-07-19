@@ -1069,6 +1069,24 @@ class AnalysisEngine:
                 for action_id in assessment_agent_contract
             }
 
+            # Feasibility Agent Result Schema: fixed output shape only, no
+            # execution. All result values remain None. No calculation, no
+            # inspection of title/description/hypotheses/evidence/
+            # provenance/diagnosticity/scores/decision structures.
+            feasibility_agent_result_schema = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "status": "pending",
+                    "result": {
+                        "score": None,
+                        "reasoning": None,
+                        "confidence": None,
+                    },
+                }
+                for action_id in feasibility_agent_scaffold
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
