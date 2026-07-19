@@ -293,7 +293,10 @@ class AnalysisEngine:
             # generated_actions). links mirrors decision_action_links exactly
             # - no new links, no evaluation. Not sent to the provider.
             decision_model = {
-                "actions": [{"action_id": action["id"]} for action in generated_actions],
+                "actions": [
+                    {"action_id": entry["id"], "registry_id": entry["id"]}
+                    for entry in decision_action_registry
+                ],
                 "links": [
                     {
                         "action_id": link["action_id"],
