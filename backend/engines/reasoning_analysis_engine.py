@@ -439,6 +439,24 @@ class AnalysisEngine:
                 for action in generated_actions
             }
 
+            # Completeness trace only - reflects presence of already existing
+            # per-action structures. No calculation, no interpretation of
+            # whether an action is good or bad.
+            decision_action_completeness_trace = {
+                action["id"]: {
+                    "has_evidence": bool(decision_action_evidence[action["id"]]),
+                    "has_provenance": bool(
+                        decision_action_provenance[action["id"]]["evidence_provenance"]
+                    ),
+                    "has_quality_trace": bool(decision_action_quality_trace[action["id"]]),
+                    "has_diagnosticity_trace": bool(
+                        decision_action_diagnosticity_trace[action["id"]]
+                    ),
+                    "has_score_trace": bool(decision_action_score_trace[action["id"]]),
+                }
+                for action in generated_actions
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
