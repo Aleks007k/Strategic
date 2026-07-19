@@ -313,12 +313,19 @@ class AnalysisEngine:
                 for link in decision_action_links
             ]
 
-            # First deterministic score aggregation: a plain sum of
-            # evaluation impacts per action. No comparison, sorting, best-
-            # action selection, weighting, or normalization.
+            # Score aggregation, now resolving each evaluation's criterion
+            # weight through the decision_criteria registry rather than using
+            # impact alone. Still a plain sum - no comparison, sorting,
+            # best-action selection, or normalization.
+            criterion_weights = {
+                criterion["id"]: criterion["weight"]
+                for criterion in decision_criteria["criteria"]
+            }
+
             decision_scores = {action["id"]: 0 for action in generated_actions}
             for evaluation in decision_evaluations:
-                decision_scores[evaluation["action_id"]] += evaluation["impact"]
+                weight = criterion_weights[evaluation["criterion_id"]]
+                decision_scores[evaluation["action_id"]] += evaluation["impact"] * weight
 
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
