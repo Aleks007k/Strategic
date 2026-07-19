@@ -1015,6 +1015,25 @@ class AnalysisEngine:
                 for action_id, source in action_candidate_assessment.items()
             }
 
+            # Action Candidate Assessment Context: clean context object for
+            # future assessment agents, combining action_candidate_pool and
+            # action_candidate_assessment_criteria only. No calculation, no
+            # inspection of hypothesis statements/evidence/provenance/
+            # diagnosticity/scores/decision structures, no missing-info
+            # generation.
+            action_candidate_assessment_context = {
+                action_id: {
+                    "action_id": action_id,
+                    "template": candidate["template"],
+                    "action": {
+                        "title": candidate["title"],
+                        "description": candidate["description"],
+                    },
+                    "criteria": action_candidate_assessment_criteria[action_id]["criteria"],
+                }
+                for action_id, candidate in action_candidate_pool.items()
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
