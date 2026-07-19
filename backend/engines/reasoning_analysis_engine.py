@@ -996,6 +996,25 @@ class AnalysisEngine:
                 for action_id, source in action_candidate_assessment_input.items()
             }
 
+            # Action Candidate Assessment Criteria Schema: fixed key set only,
+            # all values None placeholders. No calculation, no inspection of
+            # title/description/hypotheses/evidence/provenance/diagnosticity/
+            # scores/decision structures.
+            action_candidate_assessment_criteria = {
+                action_id: {
+                    "action_id": action_id,
+                    "template": source["template"],
+                    "criteria": {
+                        "feasibility": None,
+                        "impact": None,
+                        "risk": None,
+                        "cost": None,
+                        "time_horizon": None,
+                    },
+                }
+                for action_id, source in action_candidate_assessment.items()
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
