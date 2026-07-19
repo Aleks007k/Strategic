@@ -1130,6 +1130,22 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_execution
             }
 
+            # Feasibility Agent Runner Scaffold: future execution container
+            # only - nothing is executed, no LLM call, no prompt sent.
+            # prompt_contract is a direct reference to the existing entry. No
+            # inspection of action content/title/description/hypotheses/
+            # evidence/provenance/diagnosticity/scores/decision structures.
+            feasibility_agent_runner = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "prompt_contract": feasibility_agent_prompt_contract[action_id],
+                    "status": "ready",
+                    "result": None,
+                }
+                for action_id in feasibility_agent_prompt_contract
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
