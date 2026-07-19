@@ -684,6 +684,23 @@ class AnalysisEngine:
                 for action_id in decision_action_status_summary
             }
 
+            # Readiness report only - transforms existing overview status/
+            # ready/valid fields. No inspection of evidence/provenance/
+            # diagnosticity/scores/hypotheses/quality, no comparison or
+            # selection between actions.
+            decision_action_readiness_report = {
+                action_id: {
+                    "action_id": action_id,
+                    "status": overview["status"],
+                    "passed": overview["ready"] and overview["valid"],
+                    "checks": {
+                        "ready": overview["ready"],
+                        "valid": overview["valid"],
+                    },
+                }
+                for action_id, overview in decision_action_overview.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
