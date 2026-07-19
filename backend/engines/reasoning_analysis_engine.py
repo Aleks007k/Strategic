@@ -822,6 +822,31 @@ class AnalysisEngine:
                 for action in action_generator_registry
             }
 
+            # Completeness check for action_candidate_metadata only - pure
+            # boolean validation, no inspection of actual values, no
+            # generation/filling of missing fields. "complete" requires all
+            # five fields present (equivalent to an empty "missing" list),
+            # matching the expected result (False, since only title exists
+            # today) rather than a title-only check.
+            action_candidate_completeness = {}
+            for action_id, metadata in action_candidate_metadata.items():
+                missing = [
+                    field_name
+                    for field_name, exists in {
+                        "title": metadata["has_title"],
+                        "description": metadata["has_description"],
+                        "expected_outcomes": metadata["has_expected_outcomes"],
+                        "required_resources": metadata["has_required_resources"],
+                        "risks": metadata["has_risks"],
+                    }.items()
+                    if not exists
+                ]
+                action_candidate_completeness[action_id] = {
+                    "action_id": action_id,
+                    "complete": len(missing) == 0,
+                    "missing": missing,
+                }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
