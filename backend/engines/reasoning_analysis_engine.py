@@ -904,6 +904,25 @@ class AnalysisEngine:
                 for action in action_template_output
             ]
 
+            # Metadata layer for action_template_registry only - structural
+            # presence only. has_title is the sole real check; the remaining
+            # has_* fields are fixed False placeholders since those fields
+            # are never generated today - no inference, no inspection of
+            # hypotheses/evidence/decision structures.
+            action_template_metadata = {
+                action["id"]: {
+                    "action_id": action["id"],
+                    "hypothesis_index": action["hypothesis_index"],
+                    "template": action["template"],
+                    "has_title": bool(action["title"]),
+                    "has_description": False,
+                    "has_expected_outcomes": False,
+                    "has_required_resources": False,
+                    "has_risks": False,
+                }
+                for action in action_template_registry
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
