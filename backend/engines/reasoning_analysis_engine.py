@@ -229,13 +229,19 @@ class AnalysisEngine:
                 "confidence": None,
             }
 
-            # Empty registry for future decision criteria. Not connected to
-            # hypotheses or actions. Future criterion object shape (never
-            # instantiated here):
-            # {"id": None, "name": None, "description": None, "weight": None,
-            #  "category": None}
+            # First deterministic decision criterion, mirroring the existing
+            # decision_evaluations criterion string. Not yet connected to
+            # evaluations - registry only.
             decision_criteria = {
-                "criteria": [],
+                "criteria": [
+                    {
+                        "id": "criterion_1",
+                        "name": "supported_by_surviving_hypothesis",
+                        "description": "Action is supported by a surviving hypothesis",
+                        "weight": 1,
+                        "category": "support",
+                    }
+                ],
             }
 
             # Empty registry scaffold for future decision actions. Future
