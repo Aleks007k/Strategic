@@ -385,6 +385,21 @@ class AnalysisEngine:
                     ],
                 }
 
+            # Quality trace only - re-exposes each action's evidence quality
+            # (provenance/weight) from the existing evidence_quality registry.
+            # No recalculation, no scoring, no ranking.
+            decision_action_quality_trace = {
+                action_id: [
+                    {
+                        "evidence": evidence,
+                        "provenance": evidence_quality[evidence]["provenance"],
+                        "weight": evidence_quality[evidence]["weight"],
+                    }
+                    for evidence in [item["evidence"] for item in items]
+                ]
+                for action_id, items in decision_action_evidence.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
