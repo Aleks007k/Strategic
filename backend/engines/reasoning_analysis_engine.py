@@ -773,6 +773,24 @@ class AnalysisEngine:
                 for action_id, entry in decision_action_final_report.items()
             }
 
+            # First deterministic Action Generator scaffold - independent of
+            # generated_actions/decision_* structures above, no shared state.
+            # One action per surviving hypothesis only, using existing
+            # statement/status alone. No inspection of evidence/provenance/
+            # diagnosticity, no scoring, no ranking, no selection.
+            action_generator_output = []
+            for hypothesis_index, hypothesis in enumerate(hypotheses):
+                if hypothesis["status"] == "surviving":
+                    action_generator_output.append({
+                        "id": f"generated_action_{hypothesis_index}",
+                        "hypothesis_index": hypothesis_index,
+                        "title": hypothesis["statement"],
+                        "description": None,
+                        "expected_outcomes": [],
+                        "required_resources": [],
+                        "risks": [],
+                    })
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
