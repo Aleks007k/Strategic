@@ -1100,6 +1100,18 @@ class AnalysisEngine:
                 for action_id, snapshot in action_template_final_snapshot.items()
             }
 
+            # Final lookup index only - references existing final report
+            # entries unchanged. No inspection of hypothesis/evidence/
+            # provenance/diagnosticity/scores/decision structures, no new
+            # fields, no checks, no status computation.
+            action_template_final_index = {
+                action_id: {
+                    "action_id": action_id,
+                    "report": entry,
+                }
+                for action_id, entry in action_template_final_report.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
