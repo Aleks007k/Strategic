@@ -1212,6 +1212,31 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_runner
             }
 
+            # Feasibility Agent Provider Request Builder: assembles the
+            # deterministic request package a future provider would receive.
+            # All fields copied directly from existing structures - no
+            # provider selection, no request sending, no prompt text
+            # modification, no inspection of action quality/evidence/
+            # hypotheses/provenance/diagnosticity/decision structures.
+            feasibility_agent_provider_request = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "provider": None,
+                    "system_role": feasibility_agent_prompt_contract[action_id]["system_role"],
+                    "instruction": feasibility_agent_prompt_contract[action_id]["instruction"],
+                    "constraints": feasibility_agent_prompt_contract[action_id]["constraints"],
+                    "input": feasibility_agent_provider_adapter[action_id]["input"],
+                    "output_schema": (
+                        feasibility_agent_provider_adapter[action_id]["input"]["output_schema"]
+                        if "output_schema" in feasibility_agent_provider_adapter[action_id]["input"]
+                        else None
+                    ),
+                    "status": "ready",
+                }
+                for action_id in feasibility_agent_provider_adapter
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
