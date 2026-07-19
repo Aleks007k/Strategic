@@ -1087,6 +1087,23 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_scaffold
             }
 
+            # Feasibility Agent Execution Interface Scaffold: connection
+            # interface only, no model call, no execution. input/
+            # result_schema are direct references to existing structures.
+            # No calculation, no inspection of action content/title/
+            # description/hypotheses/evidence/provenance/diagnosticity/
+            # scores/decision structures.
+            feasibility_agent_execution = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "input": feasibility_agent_scaffold[action_id]["input"],
+                    "result_schema": feasibility_agent_result_schema[action_id]["result"],
+                    "status": "ready",
+                }
+                for action_id in feasibility_agent_scaffold
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
