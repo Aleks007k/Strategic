@@ -621,6 +621,21 @@ class AnalysisEngine:
                 for action in generated_actions
             }
 
+            # Export projection only - a clean structural view of
+            # decision_action_final_trace. No recalculation, no new
+            # inspection, no ranking or selection.
+            decision_action_export_view = {
+                action_id: {
+                    "action_id": action_id,
+                    "summary": trace["summary"],
+                    "score": trace["score"],
+                    "ready": trace["readiness"]["ready"],
+                    "valid": trace["validation"]["valid"],
+                    "issues": trace["validation"]["issues"],
+                }
+                for action_id, trace in decision_action_final_trace.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
