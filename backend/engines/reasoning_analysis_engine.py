@@ -969,6 +969,19 @@ class AnalysisEngine:
                 for action in action_template_materialized_output
             }
 
+            # Clean deterministic input for future candidate assessment -
+            # action_id/template/title/description only. No evaluation,
+            # scores, readiness, ranking, or decisions included.
+            action_candidate_assessment_input = {
+                action_id: {
+                    "action_id": candidate["action_id"],
+                    "template": candidate["template"],
+                    "title": candidate["title"],
+                    "description": candidate["description"],
+                }
+                for action_id, candidate in action_candidate_pool.items()
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
