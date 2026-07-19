@@ -847,6 +847,20 @@ class AnalysisEngine:
                     "missing": missing,
                 }
 
+            # Readiness state mapping only - derived purely from
+            # action_candidate_completeness. No inspection of action content/
+            # title/hypotheses/evidence/provenance/diagnosticity/scores, no
+            # generation or fixing of missing fields.
+            action_candidate_readiness = {
+                action_id: {
+                    "action_id": action_id,
+                    "ready": completeness["complete"],
+                    "missing": completeness["missing"],
+                    "status": "ready" if completeness["complete"] else "incomplete",
+                }
+                for action_id, completeness in action_candidate_completeness.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
