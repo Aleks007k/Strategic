@@ -569,6 +569,30 @@ class AnalysisEngine:
                 for action in generated_actions
             }
 
+            # Identity/link integrity check only - verifies the already
+            # assembled decision_action_trace_index is internally consistent.
+            # No inspection of evidence/quality/diagnosticity/scores/
+            # hypotheses/statements, no ranking, no score changes.
+            decision_action_integrity_check = {}
+            for action_id, trace in decision_action_trace_index.items():
+                issues = []
+                if trace["action_id"] != action_id:
+                    issues.append("action_id_mismatch")
+                if trace["registry"]["id"] != action_id:
+                    issues.append("registry_mismatch")
+                if trace["summary"]["action_id"] != action_id:
+                    issues.append("summary_mismatch")
+                if trace["readiness"]["action_id"] != action_id:
+                    issues.append("readiness_mismatch")
+                if trace["consistency"]["action_id"] != action_id:
+                    issues.append("consistency_mismatch")
+
+                decision_action_integrity_check[action_id] = {
+                    "action_id": action_id,
+                    "valid": len(issues) == 0,
+                    "issues": issues,
+                }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
