@@ -606,6 +606,21 @@ class AnalysisEngine:
                 for action_id, integrity in decision_action_integrity_check.items()
             }
 
+            # Final assembled trace only - bundles the already-built decision
+            # layers per action. No recalculation, no new inspection, no
+            # ranking or selection.
+            decision_action_final_trace = {
+                action["id"]: {
+                    "action_id": action["id"],
+                    "summary": decision_action_summary[action["id"]],
+                    "score": decision_action_score_trace[action["id"]],
+                    "readiness": decision_action_readiness[action["id"]],
+                    "validation": decision_action_validation_summary[action["id"]],
+                    "integrity": decision_action_integrity_check[action["id"]],
+                }
+                for action in generated_actions
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
