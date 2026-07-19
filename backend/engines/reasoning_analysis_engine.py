@@ -327,6 +327,18 @@ class AnalysisEngine:
                 weight = criterion_weights[evaluation["criterion_id"]]
                 decision_scores[evaluation["action_id"]] += evaluation["impact"] * weight
 
+            # Explanation structure only - shows how each action's score was
+            # formed. Does not compute a new score or replace decision_scores.
+            decision_score_breakdown = {action["id"]: [] for action in generated_actions}
+            for evaluation in decision_evaluations:
+                weight = criterion_weights[evaluation["criterion_id"]]
+                decision_score_breakdown[evaluation["action_id"]].append({
+                    "criterion_id": evaluation["criterion_id"],
+                    "impact": evaluation["impact"],
+                    "weight": weight,
+                    "contribution": evaluation["impact"] * weight,
+                })
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
