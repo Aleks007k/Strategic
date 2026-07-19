@@ -218,11 +218,6 @@ class AnalysisEngine:
                 for index, hypothesis in enumerate(hypotheses)
             ]
 
-            # Empty scaffold for the future Decision Model layer (see
-            # docs/STRATEGIC_HYPOTHESIS_LAYER.md). No action generation, no
-            # inference. Not exposed, not sent to the provider, and not
-            # consulted by ranking/status/scoring/confidence/assumptions.
-            #
             # decision_action_schema is a shape reference only - it documents
             # the fields a future decision action will have. It is never
             # instantiated or added to decision_model["actions"].
@@ -232,11 +227,6 @@ class AnalysisEngine:
                 "triggered_by_hypotheses": [],
                 "blocked_by_hypotheses": [],
                 "confidence": None,
-            }
-
-            decision_model = {
-                "actions": [],
-                "links": [],
             }
 
             # Empty registry for future decision criteria. Not connected to
@@ -288,6 +278,16 @@ class AnalysisEngine:
                         "action_id": action_id,
                         "relationship": "supports",
                     })
+
+            # decision_model registers candidate actions by ID only - it does
+            # not duplicate generated_actions' content (name/description/
+            # category/resources/risks/outcomes stay only in
+            # generated_actions). Not evaluated, not linked, not sent to the
+            # provider.
+            decision_model = {
+                "actions": [{"action_id": action["id"]} for action in generated_actions],
+                "links": [],
+            }
 
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
