@@ -978,6 +978,21 @@ class AnalysisEngine:
                 for action_id, readiness in action_template_readiness.items()
             }
 
+            # Final structural status combination only - combines the
+            # existing release gate and readiness. No inspection of
+            # templates/titles/hypotheses/evidence/provenance/scores/decision
+            # structures, no recalculation, validation, or selection.
+            action_template_final_status = {
+                action_id: {
+                    "action_id": action_id,
+                    "released": gate["released"],
+                    "reason": gate["reason"],
+                    "ready": action_template_readiness[action_id]["ready"],
+                    "status": action_template_readiness[action_id]["status"],
+                }
+                for action_id, gate in action_template_release_gate.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
