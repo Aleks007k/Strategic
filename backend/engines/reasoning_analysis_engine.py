@@ -1328,6 +1328,23 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_provider_interface
             }
 
+            # Feasibility Agent Provider Dispatcher: deterministic dispatch
+            # simulation only, bridging routing to the existing mock result.
+            # No provider execution happens here, no model call, no new
+            # results generated, no inspection of action content/title/
+            # description/hypotheses/evidence/provenance/diagnosticity/
+            # scores/decision structures.
+            feasibility_agent_provider_dispatcher = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "provider": feasibility_agent_provider_router[action_id]["selected_provider"],
+                    "status": "completed",
+                    "response": feasibility_agent_mock_execution[action_id]["result"],
+                }
+                for action_id in feasibility_agent_provider_router
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
