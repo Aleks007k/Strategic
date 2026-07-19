@@ -923,6 +923,34 @@ class AnalysisEngine:
                 for action in action_template_registry
             }
 
+            # Completeness check for action_template_metadata only - pure
+            # boolean validation, no inspection of actual values, no
+            # generation/filling of missing fields.
+            action_template_completeness = {
+                action_id: {
+                    "action_id": action_id,
+                    "complete": all([
+                        metadata["has_title"],
+                        metadata["has_description"],
+                        metadata["has_expected_outcomes"],
+                        metadata["has_required_resources"],
+                        metadata["has_risks"],
+                    ]),
+                    "missing": [
+                        field_name
+                        for field_name, exists in {
+                            "title": metadata["has_title"],
+                            "description": metadata["has_description"],
+                            "expected_outcomes": metadata["has_expected_outcomes"],
+                            "required_resources": metadata["has_required_resources"],
+                            "risks": metadata["has_risks"],
+                        }.items()
+                        if not exists
+                    ],
+                }
+                for action_id, metadata in action_template_metadata.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
