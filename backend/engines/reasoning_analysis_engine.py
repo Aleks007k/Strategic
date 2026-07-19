@@ -931,6 +931,28 @@ class AnalysisEngine:
                     "risks": template["risks"],
                 })
 
+            # Structural evaluation of materialized action candidates only -
+            # pure bool() presence checks on already materialized fields. No
+            # inspection of hypothesis/evidence/decision structures, no
+            # filling of missing fields, no mutation of
+            # action_template_materialized_output.
+            action_candidate_evaluation = {
+                action["id"]: {
+                    "action_id": action["id"],
+                    "has_description": bool(action["description"]),
+                    "has_expected_outcomes": bool(action["expected_outcomes"]),
+                    "has_required_resources": bool(action["required_resources"]),
+                    "has_risks": bool(action["risks"]),
+                    "structurally_ready": all([
+                        bool(action["description"]),
+                        bool(action["expected_outcomes"]),
+                        bool(action["required_resources"]),
+                        bool(action["risks"]),
+                    ]),
+                }
+                for action in action_template_materialized_output
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
