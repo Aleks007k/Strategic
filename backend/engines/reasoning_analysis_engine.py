@@ -729,6 +729,20 @@ class AnalysisEngine:
                 for action_id, gate in decision_action_release_gate.items()
             }
 
+            # Final immutable-style snapshot only - collects existing final
+            # structures. No recalculation, no inspection of evidence/
+            # provenance/diagnosticity/hypotheses/quality, no comparison or
+            # selection between actions.
+            decision_action_final_snapshot = {
+                action_id: {
+                    "action_id": action_id,
+                    "status": decision_action_final_status[action_id],
+                    "trace": decision_action_final_trace[action_id],
+                    "audit": decision_action_audit_log[action_id],
+                }
+                for action_id in decision_action_final_status
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
