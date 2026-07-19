@@ -239,11 +239,6 @@ class AnalysisEngine:
                 "links": [],
             }
 
-            # Empty bridge scaffold between decision_impacts and decision_model.
-            # Future link shape (never instantiated here):
-            # {"hypothesis_index": None, "action_id": None, "relationship": None}
-            decision_action_links = []
-
             # Empty registry for future decision criteria. Not connected to
             # hypotheses or actions. Future criterion object shape (never
             # instantiated here):
@@ -269,17 +264,29 @@ class AnalysisEngine:
             # surviving hypothesis only, built from existing data alone (no
             # inference beyond status). Local only - not connected to
             # decision_action_registry, decision_model, or anything else yet.
+            #
+            # decision_action_links connects each generated action back to its
+            # originating hypothesis. The hypothesis index comes straight from
+            # this generation loop, not parsed from the action ID or any
+            # hypothesis text.
             generated_actions = []
+            decision_action_links = []
             for hypothesis_index, hypothesis in enumerate(hypotheses):
                 if hypothesis["status"] == "surviving":
+                    action_id = f"action_{hypothesis_index}"
                     generated_actions.append({
-                        "id": f"action_{hypothesis_index}",
+                        "id": action_id,
                         "name": hypothesis["statement"],
                         "description": None,
                         "category": None,
                         "required_resources": [],
                         "risks": [],
                         "expected_outcomes": [],
+                    })
+                    decision_action_links.append({
+                        "hypothesis_index": hypothesis_index,
+                        "action_id": action_id,
+                        "relationship": "supports",
                     })
 
             # Internal scaffold: deterministic shared-evidence detection across
