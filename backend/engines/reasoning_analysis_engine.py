@@ -701,6 +701,19 @@ class AnalysisEngine:
                 for action_id, overview in decision_action_overview.items()
             }
 
+            # Release gate only - a deterministic mapping of the existing
+            # readiness report's passed field. No inspection of evidence/
+            # provenance/diagnosticity/scores/hypotheses/quality, no
+            # comparison or selection between actions.
+            decision_action_release_gate = {
+                action_id: {
+                    "action_id": action_id,
+                    "released": report["passed"],
+                    "reason": "all_checks_passed" if report["passed"] else "checks_failed",
+                }
+                for action_id, report in decision_action_readiness_report.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
