@@ -307,6 +307,23 @@ class AnalysisEngine:
                 ],
             }
 
+            # Consistency trace only - checks that decision_action_registry,
+            # generated_actions, and decision_model agree with each other.
+            # No new actions, no ranking, no conclusions - pure existence
+            # checks.
+            decision_registry_consistency_trace = {
+                entry["id"]: {
+                    "action_id": entry["id"],
+                    "exists_in_generated_actions": any(
+                        action["id"] == entry["id"] for action in generated_actions
+                    ),
+                    "exists_in_decision_model": any(
+                        item["registry_id"] == entry["id"] for item in decision_model["actions"]
+                    ),
+                }
+                for entry in decision_action_registry
+            }
+
             # First deterministic decision evaluations: one purely structural
             # entry per decision_action_links entry. No aggregation,
             # normalization, confidence calculation, action comparison, or
