@@ -1255,23 +1255,32 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_provider_request
             }
 
+            # First executable provider component: ignores request contents,
+            # performs no analysis/inspection/inference, always returns the
+            # same fixed object. No randomness, no LLM, no API, no network,
+            # no filesystem, no environment access.
+            def execute_mock_feasibility_provider(request):
+                return {
+                    "score": 0.5,
+                    "reasoning": "mock_result",
+                    "confidence": 0.5,
+                }
+
             # Feasibility Agent Mock Provider Execution: deterministic local
             # simulation only, for pipeline testing - no LLM/AI/external
-            # API/network call, not a real evaluation. result values are
-            # fixed mock constants, not derived from any inspection of
-            # title/description/hypothesis/evidence/provenance/
-            # diagnosticity/scores/decision structures.
+            # API/network call, not a real evaluation. result values come
+            # from execute_mock_feasibility_provider(), not derived from any
+            # inspection of title/description/hypothesis/evidence/
+            # provenance/diagnosticity/scores/decision structures.
             feasibility_agent_mock_execution = {
                 action_id: {
                     "action_id": action_id,
                     "agent": "feasibility",
                     "status": "completed",
                     "request": feasibility_agent_provider_executor[action_id]["request"],
-                    "result": {
-                        "score": 0.5,
-                        "reasoning": "mock_result",
-                        "confidence": 0.5,
-                    },
+                    "result": execute_mock_feasibility_provider(
+                        feasibility_agent_provider_executor[action_id]["request"]
+                    ),
                 }
                 for action_id in feasibility_agent_provider_executor
             }
