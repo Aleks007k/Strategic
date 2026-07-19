@@ -1104,6 +1104,32 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_scaffold
             }
 
+            # Feasibility Agent Prompt Contract Scaffold: fixed static prompt
+            # fields only, no prompt sent anywhere, no LLM call. input_
+            # reference/output_schema are direct references to the existing
+            # execution interface. No inspection of action content/title/
+            # description/hypotheses/evidence/provenance/diagnosticity/
+            # scores/decision structures.
+            feasibility_agent_prompt_contract = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "system_role": "feasibility analyst",
+                    "instruction": "Evaluate only practical feasibility of the action.",
+                    "constraints": [
+                        "Do not evaluate impact.",
+                        "Do not evaluate risk.",
+                        "Do not evaluate cost.",
+                        "Do not evaluate time horizon.",
+                        "Return only structured JSON output.",
+                    ],
+                    "input_reference": feasibility_agent_execution[action_id]["input"],
+                    "output_schema": feasibility_agent_execution[action_id]["result_schema"],
+                    "status": "pending",
+                }
+                for action_id in feasibility_agent_execution
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
