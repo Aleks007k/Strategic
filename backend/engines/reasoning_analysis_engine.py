@@ -1357,6 +1357,24 @@ class AnalysisEngine:
                 "execute": "mock_execution",
             }
 
+            # Feasibility Agent Provider Resolution: resolves selected
+            # provider into its registry definition only - no execution, no
+            # provider calls, no inspection of actions/titles/descriptions/
+            # hypotheses/evidence/provenance/diagnosticity/scores/decision
+            # structures.
+            feasibility_agent_provider_resolution = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "selected_provider": feasibility_agent_provider_router[action_id]["selected_provider"],
+                    "provider_definition": feasibility_agent_provider_registry[
+                        feasibility_agent_provider_router[action_id]["selected_provider"]
+                    ],
+                    "status": "resolved",
+                }
+                for action_id in feasibility_agent_provider_router
+            }
+
             # Feasibility Agent Provider Dispatcher: deterministic dispatch
             # simulation only, bridging routing to the existing mock result.
             # No provider execution happens here, no model call, no new
