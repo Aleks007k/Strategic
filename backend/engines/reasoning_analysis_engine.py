@@ -428,6 +428,17 @@ class AnalysisEngine:
                 for action_id, items in decision_action_evidence.items()
             }
 
+            # Score trace only - re-exposes each action's already-computed
+            # final score and breakdown. No recalculation, no ranking, no
+            # comparison.
+            decision_action_score_trace = {
+                action["id"]: {
+                    "final_score": decision_scores[action["id"]],
+                    "breakdown": decision_score_breakdown[action["id"]],
+                }
+                for action in generated_actions
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
