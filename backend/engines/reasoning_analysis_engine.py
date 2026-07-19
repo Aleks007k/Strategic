@@ -953,6 +953,22 @@ class AnalysisEngine:
                 for action in action_template_materialized_output
             }
 
+            # Action Candidate Pool: pure projection combining
+            # action_template_materialized_output and
+            # action_candidate_evaluation. No ranking, scoring, selection, or
+            # comparison between candidates - a plain lookup structure only.
+            action_candidate_pool = {
+                action["id"]: {
+                    "action_id": action["id"],
+                    "hypothesis_index": action["hypothesis_index"],
+                    "template": action["template"],
+                    "title": action["title"],
+                    "description": action["description"],
+                    "evaluation": action_candidate_evaluation[action["id"]],
+                }
+                for action in action_template_materialized_output
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
