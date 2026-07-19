@@ -1053,6 +1053,22 @@ class AnalysisEngine:
                 for action_id in action_candidate_assessment_context
             }
 
+            # Feasibility Agent Scaffold: connection point only, no
+            # execution. input is a direct reference to the existing
+            # context; output stays None. No calculation, no inspection of
+            # title/description/hypotheses/evidence/provenance/
+            # diagnosticity/scores/decision structures.
+            feasibility_agent_scaffold = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "status": "pending",
+                    "input": action_candidate_assessment_context[action_id],
+                    "output": None,
+                }
+                for action_id in assessment_agent_contract
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
