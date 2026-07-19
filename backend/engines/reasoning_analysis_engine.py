@@ -304,6 +304,7 @@ class AnalysisEngine:
             decision_evaluations = [
                 {
                     "action_id": link["action_id"],
+                    "criterion_id": decision_criteria["criteria"][0]["id"],
                     "criterion": "supported_by_surviving_hypothesis",
                     "impact": 1,
                     "supporting_hypotheses": [link["hypothesis_index"]],
