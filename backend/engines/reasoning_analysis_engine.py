@@ -653,6 +653,21 @@ class AnalysisEngine:
                 for action_id in decision_action_export_view
             }
 
+            # Status summary only - a deterministic boolean combination of
+            # existing export fields. No inspection of hypotheses/evidence/
+            # diagnosticity/provenance/scores/ranking/quality.
+            decision_action_status_summary = {
+                action_id: {
+                    "action_id": action_id,
+                    "ready": export_view["ready"],
+                    "valid": export_view["valid"],
+                    "status": (
+                        "ready" if export_view["ready"] and export_view["valid"] else "needs_review"
+                    ),
+                }
+                for action_id, export_view in decision_action_export_view.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
