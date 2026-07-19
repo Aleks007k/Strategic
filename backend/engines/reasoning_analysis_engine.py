@@ -244,12 +244,6 @@ class AnalysisEngine:
                 ],
             }
 
-            # Empty registry scaffold for future decision actions. Future
-            # action object shape (never instantiated here):
-            # {"id": None, "name": None, "description": None, "category": None,
-            #  "required_resources": [], "risks": [], "expected_outcomes": []}
-            decision_action_registry = []
-
             # First deterministic decision action candidates: one per
             # surviving hypothesis only, built from existing data alone (no
             # inference beyond status). Local only - not connected to
@@ -278,6 +272,20 @@ class AnalysisEngine:
                         "action_id": action_id,
                         "relationship": "supports",
                     })
+
+            # decision_action_registry: structural registration only - id,
+            # name, description, category. required_resources/risks/
+            # expected_outcomes/score/readiness/evidence/provenance/
+            # diagnosticity stay exclusively in their own existing structures.
+            decision_action_registry = [
+                {
+                    "id": action["id"],
+                    "name": action["name"],
+                    "description": action["description"],
+                    "category": action["category"],
+                }
+                for action in generated_actions
+            ]
 
             # decision_model registers candidate actions by ID only - it does
             # not duplicate generated_actions' content (name/description/
