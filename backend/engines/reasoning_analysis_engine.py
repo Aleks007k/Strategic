@@ -891,6 +891,19 @@ class AnalysisEngine:
                         "risks": [],
                     })
 
+            # Registry layer for action_template_output only - projection of
+            # id/hypothesis_index/template/title. No inspection of
+            # hypotheses/evidence/decision structures, no new fields.
+            action_template_registry = [
+                {
+                    "id": action["id"],
+                    "hypothesis_index": action["hypothesis_index"],
+                    "template": action["template"],
+                    "title": action["title"],
+                }
+                for action in action_template_output
+            ]
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
