@@ -636,6 +636,23 @@ class AnalysisEngine:
                 for action_id, trace in decision_action_final_trace.items()
             }
 
+            # Audit log only - fixed, hardcoded source labels documenting
+            # where each export field came from. Not calculated dynamically,
+            # no inspection of quality/evidence/hypotheses/scores/provenance.
+            decision_action_audit_log = {
+                action_id: {
+                    "action_id": action_id,
+                    "sources": {
+                        "summary": "decision_action_final_trace.summary",
+                        "score": "decision_action_final_trace.score",
+                        "ready": "decision_action_final_trace.readiness.ready",
+                        "valid": "decision_action_final_trace.validation.valid",
+                        "issues": "decision_action_final_trace.validation.issues",
+                    },
+                }
+                for action_id in decision_action_export_view
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
