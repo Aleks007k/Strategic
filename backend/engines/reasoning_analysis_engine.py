@@ -593,6 +593,19 @@ class AnalysisEngine:
                     "issues": issues,
                 }
 
+            # Validation summary only - aggregates the already existing
+            # integrity check results. No recalculation, no new inspection,
+            # no comparison between actions.
+            decision_action_validation_summary = {
+                action_id: {
+                    "action_id": action_id,
+                    "valid": integrity["valid"],
+                    "issue_count": len(integrity["issues"]),
+                    "issues": integrity["issues"],
+                }
+                for action_id, integrity in decision_action_integrity_check.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
