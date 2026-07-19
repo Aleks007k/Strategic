@@ -1293,6 +1293,24 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_mock_execution
             }
 
+            # Feasibility Agent Provider Interface: abstraction boundary
+            # contract only, no provider selected, no execution. request_
+            # schema/response_schema are direct references to existing
+            # structures. No model call, no request sent, no results
+            # generated, no inspection of titles/descriptions/hypotheses/
+            # evidence/provenance/diagnosticity/scores/decision structures.
+            feasibility_agent_provider_interface = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "provider_type": None,
+                    "execute_status": "available",
+                    "request_schema": feasibility_agent_provider_executor[action_id]["request"],
+                    "response_schema": feasibility_agent_final_result[action_id]["result"],
+                }
+                for action_id in feasibility_agent_provider_executor
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
