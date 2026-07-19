@@ -1146,6 +1146,26 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_prompt_contract
             }
 
+            # Feasibility Agent Executor Mock: deterministic mock execution
+            # only, no LLM/AI/external API/real feasibility analysis. All
+            # result values remain None - status moves to "completed" to
+            # simulate flow, but no scores/reasoning/confidence are ever
+            # produced. No inspection of title/description/hypotheses/
+            # evidence/provenance/diagnosticity/decision structures.
+            feasibility_agent_execution_result = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "status": "completed",
+                    "result": {
+                        "score": None,
+                        "reasoning": None,
+                        "confidence": None,
+                    },
+                }
+                for action_id in feasibility_agent_runner
+            }
+
             # Registry layer for action_template_output only - projection of
             # id/hypothesis_index/template/title. No inspection of
             # hypotheses/evidence/decision structures, no new fields.
