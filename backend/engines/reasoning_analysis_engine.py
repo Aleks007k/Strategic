@@ -861,6 +861,36 @@ class AnalysisEngine:
                 for action_id, completeness in action_candidate_completeness.items()
             }
 
+            # Action Templates: a fixed, deterministic template per hypothesis
+            # type (null/constraint/skill). Each surviving hypothesis is
+            # matched only to its own type's template - no AI, no inference,
+            # no template-driven wording. Per explicit instruction, id/title
+            # use the same naming scheme as action_generator_output exactly
+            # (id=template_action_{index}, title=statement unchanged, no
+            # prefix/suffix) - this is temporary and may change later.
+            # Independent of action_generator_output/action_generator_registry
+            # above; neither is modified.
+            action_templates = {
+                "null": "null_template",
+                "constraint": "constraint_template",
+                "skill": "skill_template",
+            }
+
+            action_template_output = []
+            for hypothesis_index, hypothesis in enumerate(hypotheses):
+                if hypothesis["status"] == "surviving":
+                    matched_template = action_templates.get(hypothesis["type"])
+                    action_template_output.append({
+                        "id": f"template_action_{hypothesis_index}",
+                        "hypothesis_index": hypothesis_index,
+                        "template": matched_template,
+                        "title": hypothesis["statement"],
+                        "description": None,
+                        "expected_outcomes": [],
+                        "required_resources": [],
+                        "risks": [],
+                    })
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
