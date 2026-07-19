@@ -668,6 +668,22 @@ class AnalysisEngine:
                 for action_id, export_view in decision_action_export_view.items()
             }
 
+            # Final compact overview only - combines existing decision views.
+            # No inspection of evidence content/provenance/diagnosticity/
+            # hypotheses, no comparison, sorting, or selection between
+            # actions.
+            decision_action_overview = {
+                action_id: {
+                    "action_id": action_id,
+                    "status": decision_action_status_summary[action_id]["status"],
+                    "score": decision_action_export_view[action_id]["score"],
+                    "evidence_count": len(decision_action_evidence[action_id]),
+                    "ready": decision_action_status_summary[action_id]["ready"],
+                    "valid": decision_action_status_summary[action_id]["valid"],
+                }
+                for action_id in decision_action_status_summary
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
