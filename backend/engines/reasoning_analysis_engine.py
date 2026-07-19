@@ -265,6 +265,23 @@ class AnalysisEngine:
             #  "required_resources": [], "risks": [], "expected_outcomes": []}
             decision_action_registry = []
 
+            # First deterministic decision action candidates: one per
+            # surviving hypothesis only, built from existing data alone (no
+            # inference beyond status). Local only - not connected to
+            # decision_action_registry, decision_model, or anything else yet.
+            generated_actions = []
+            for hypothesis_index, hypothesis in enumerate(hypotheses):
+                if hypothesis["status"] == "surviving":
+                    generated_actions.append({
+                        "id": f"action_{hypothesis_index}",
+                        "name": hypothesis["statement"],
+                        "description": None,
+                        "category": None,
+                        "required_resources": [],
+                        "risks": [],
+                        "expected_outcomes": [],
+                    })
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
