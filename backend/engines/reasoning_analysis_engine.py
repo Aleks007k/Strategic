@@ -238,12 +238,6 @@ class AnalysisEngine:
                 "criteria": [],
             }
 
-            # Empty scaffold for future decision/action evaluation results.
-            # Future evaluation object shape (never instantiated here):
-            # {"action_id": None, "criterion": None, "impact": None,
-            #  "supporting_hypotheses": [], "blocking_hypotheses": []}
-            decision_evaluations = []
-
             # Empty registry scaffold for future decision actions. Future
             # action object shape (never instantiated here):
             # {"id": None, "name": None, "description": None, "category": None,
@@ -295,6 +289,22 @@ class AnalysisEngine:
                     for link in decision_action_links
                 ],
             }
+
+            # First deterministic decision evaluations: one purely structural
+            # entry per decision_action_links entry. No aggregation,
+            # normalization, confidence calculation, action comparison, or
+            # recommendation generation - just a fixed criterion/impact
+            # reflecting that the action is backed by a surviving hypothesis.
+            decision_evaluations = [
+                {
+                    "action_id": link["action_id"],
+                    "criterion": "supported_by_surviving_hypothesis",
+                    "impact": 1,
+                    "supporting_hypotheses": [link["hypothesis_index"]],
+                    "blocking_hypotheses": [],
+                }
+                for link in decision_action_links
+            ]
 
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
