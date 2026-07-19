@@ -483,6 +483,27 @@ class AnalysisEngine:
                     "missing": missing,
                 }
 
+            # Summary only - collects already existing per-action data into
+            # one structural view. No comparison, sorting, best-action
+            # selection, new scoring, or recommendations.
+            decision_action_summary = {
+                action["id"]: {
+                    "action_id": action["id"],
+                    "name": action["name"],
+                    "readiness": decision_action_readiness[action["id"]],
+                    "score": decision_scores[action["id"]],
+                    "evidence_count": len(decision_action_evidence[action["id"]]),
+                    "has_complete_trace": (
+                        decision_action_completeness_trace[action["id"]]["has_evidence"]
+                        and decision_action_completeness_trace[action["id"]]["has_provenance"]
+                        and decision_action_completeness_trace[action["id"]]["has_quality_trace"]
+                        and decision_action_completeness_trace[action["id"]]["has_diagnosticity_trace"]
+                        and decision_action_completeness_trace[action["id"]]["has_score_trace"]
+                    ),
+                }
+                for action in generated_actions
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
