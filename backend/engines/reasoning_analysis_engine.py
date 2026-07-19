@@ -993,6 +993,28 @@ class AnalysisEngine:
                 for action_id, gate in action_template_release_gate.items()
             }
 
+            # Final assembled trace only - combines existing template-action
+            # structures. action_template_registry is a list, so a by-id
+            # lookup is built first (no new data, just an index over
+            # existing entries). No recalculation, no new boolean checks, no
+            # inspection of hypothesis statements/evidence/provenance/
+            # diagnosticity/scores/decision structures.
+            action_template_registry_by_id = {
+                entry["id"]: entry for entry in action_template_registry
+            }
+            action_template_final_trace = {
+                action_id: {
+                    "action_id": action_id,
+                    "registry": action_template_registry_by_id[action_id],
+                    "metadata": action_template_metadata[action_id],
+                    "completeness": action_template_completeness[action_id],
+                    "readiness": action_template_readiness[action_id],
+                    "release_gate": action_template_release_gate[action_id],
+                    "status": action_template_final_status[action_id],
+                }
+                for action_id in action_template_final_status
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
