@@ -1328,6 +1328,26 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_provider_interface
             }
 
+            # Feasibility Agent Provider Registry: static registry only, no
+            # imports, no provider objects, no functions, no execution or
+            # selection logic, no API keys, no environment access. No
+            # inspection of actions/hypotheses/evidence/provenance/
+            # diagnosticity/scores/decision structures.
+            feasibility_agent_provider_registry = {
+                "mock": {
+                    "name": "mock",
+                    "status": "available",
+                },
+                "claude": {
+                    "name": "claude",
+                    "status": "unavailable",
+                },
+                "openai": {
+                    "name": "openai",
+                    "status": "unavailable",
+                },
+            }
+
             # Feasibility Agent Provider Dispatcher: deterministic dispatch
             # simulation only, bridging routing to the existing mock result.
             # No provider execution happens here, no model call, no new
