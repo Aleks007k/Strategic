@@ -1375,6 +1375,24 @@ class AnalysisEngine:
                 for action_id in feasibility_agent_provider_router
             }
 
+            # Feasibility Agent Provider Execution Bridge: connects resolved
+            # provider configuration to the existing mock execution result.
+            # No actual execution logic, no model call, no new results, no
+            # inspection of actions/titles/descriptions/hypotheses/evidence/
+            # provenance/diagnosticity/scores/decision structures.
+            feasibility_agent_provider_execution_bridge = {
+                action_id: {
+                    "action_id": action_id,
+                    "agent": "feasibility",
+                    "provider": feasibility_agent_provider_resolution[action_id]["selected_provider"],
+                    "provider_definition": feasibility_agent_provider_resolution[action_id]["provider_definition"],
+                    "execution_source": "mock_execution",
+                    "result_reference": feasibility_agent_mock_execution[action_id]["result"],
+                    "status": "completed",
+                }
+                for action_id in feasibility_agent_provider_resolution
+            }
+
             # Feasibility Agent Provider Dispatcher: deterministic dispatch
             # simulation only, bridging routing to the existing mock result.
             # No provider execution happens here, no model call, no new
