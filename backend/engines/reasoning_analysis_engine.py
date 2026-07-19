@@ -714,6 +714,21 @@ class AnalysisEngine:
                 for action_id, report in decision_action_readiness_report.items()
             }
 
+            # Final structural status projection only - combines the existing
+            # release gate and overview. No calculation, no inspection of
+            # evidence/provenance/diagnosticity/hypotheses/quality, no
+            # comparison or selection between actions.
+            decision_action_final_status = {
+                action_id: {
+                    "action_id": action_id,
+                    "released": gate["released"],
+                    "reason": gate["reason"],
+                    "status": decision_action_overview[action_id]["status"],
+                    "score": decision_action_overview[action_id]["score"],
+                }
+                for action_id, gate in decision_action_release_gate.items()
+            }
+
             # Internal scaffold: deterministic shared-evidence detection across
             # causal graphs (see docs/STRATEGIC_HYPOTHESIS_LAYER.md). Evidence
             # nodes only (supports/contradicts edges) - source and status nodes
